@@ -4,28 +4,164 @@ import { FiGitBranch, FiPlus, FiSearch, FiFilter } from 'react-icons/fi';
 const Project = () => {
   const [projects, setProjects] = useState([
     {
-      id: 1,
-      title: 'E-commerce Platform',
-      description: 'Full-stack online store with React and Node.js',
-      skills: ['React', 'Node.js', 'MongoDB'],
-      members: 3,
-      status: 'active'
+      "id": 1,
+      "title": "E-commerce Platform",
+      "description": "Full-stack online store with React and Node.js",
+      "skills": ["React", "Node.js", "MongoDB"],
+      "members": 3,
+      "status": "active"
     },
     {
-      id: 2,
-      title: 'Portfolio Builder',
-      description: 'AI-powered portfolio generator for developers',
-      skills: ['Next.js', 'Tailwind', 'OpenAI API'],
-      members: 2,
-      status: 'recruiting'
+      "id": 2,
+      "title": "Portfolio Builder",
+      "description": "AI-powered portfolio generator for developers",
+      "skills": ["Next.js", "Tailwind", "OpenAI API"],
+      "members": 2,
+      "status": "recruiting"
     },
     {
-      id: 3,
-      title: 'Task Manager',
-      description: 'Collaborative project management tool',
-      skills: ['TypeScript', 'Firebase', 'React'],
-      members: 4,
-      status: 'active'
+      "id": 3,
+      "title": "Task Manager",
+      "description": "Collaborative project management tool",
+      "skills": ["TypeScript", "Firebase", "React"],
+      "members": 4,
+      "status": "active"
+    },
+    {
+      "id": 4,
+      "title": "Social Media App",
+      "description": "A platform for connecting with friends and sharing updates",
+      "skills": ["React Native", "Node.js", "PostgreSQL"],
+      "members": 5,
+      "status": "active"
+    },
+    {
+      "id": 5,
+      "title": "Blog CMS",
+      "description": "Content management system for blogging",
+      "skills": ["WordPress", "PHP", "MySQL"],
+      "members": 3,
+      "status": "completed"
+    },
+    {
+      "id": 6,
+      "title": "Weather App",
+      "description": "Real-time weather updates and forecasts",
+      "skills": ["Vue.js", "API Integration", "CSS"],
+      "members": 2,
+      "status": "active"
+    },
+    {
+      "id": 7,
+      "title": "Chat Application",
+      "description": "Real-time messaging platform",
+      "skills": ["Socket.io", "React", "Node.js"],
+      "members": 4,
+      "status": "active"
+    },
+    {
+      "id": 8,
+      "title": "Fitness Tracker",
+      "description": "Track workouts and monitor progress",
+      "skills": ["React Native", "Firebase", "GraphQL"],
+      "members": 3,
+      "status": "recruiting"
+    },
+    {
+      "id": 9,
+      "title": "Online Learning Platform",
+      "description": "E-learning platform with video courses",
+      "skills": ["Angular", "Node.js", "MongoDB"],
+      "members": 6,
+      "status": "active"
+    },
+    {
+      "id": 10,
+      "title": "Expense Tracker",
+      "description": "Track and manage personal expenses",
+      "skills": ["React", "Redux", "Firebase"],
+      "members": 2,
+      "status": "completed"
+    },
+    {
+      "id": 11,
+      "title": "Travel Booking App",
+      "description": "Book flights, hotels, and rental cars",
+      "skills": ["React", "Node.js", "Stripe API"],
+      "members": 5,
+      "status": "active"
+    },
+    {
+      "id": 12,
+      "title": "Food Delivery App",
+      "description": "Order food from local restaurants",
+      "skills": ["Flutter", "Firebase", "Google Maps API"],
+      "members": 4,
+      "status": "active"
+    },
+    {
+      "id": 13,
+      "title": "Job Portal",
+      "description": "Find and apply for jobs",
+      "skills": ["React", "Node.js", "MongoDB"],
+      "members": 3,
+      "status": "recruiting"
+    },
+    {
+      "id": 14,
+      "title": "Event Management System",
+      "description": "Plan and manage events",
+      "skills": ["Laravel", "MySQL", "Bootstrap"],
+      "members": 4,
+      "status": "active"
+    },
+    {
+      "id": 15,
+      "title": "E-book Reader",
+      "description": "Read and manage e-books",
+      "skills": ["React Native", "Redux", "Firebase"],
+      "members": 2,
+      "status": "completed"
+    },
+    {
+      "id": 16,
+      "title": "Music Streaming App",
+      "description": "Stream and download music",
+      "skills": ["React", "Node.js", "AWS S3"],
+      "members": 5,
+      "status": "active"
+    },
+    {
+      "id": 17,
+      "title": "AI Chatbot",
+      "description": "AI-powered chatbot for customer support",
+      "skills": ["Python", "TensorFlow", "Flask"],
+      "members": 3,
+      "status": "active"
+    },
+    {
+      "id": 18,
+      "title": "Online Quiz App",
+      "description": "Take quizzes and track scores",
+      "skills": ["React", "Firebase", "TypeScript"],
+      "members": 2,
+      "status": "completed"
+    },
+    {
+      "id": 19,
+      "title": "Stock Market Tracker",
+      "description": "Track stock prices and trends",
+      "skills": ["React", "Node.js", "D3.js"],
+      "members": 4,
+      "status": "active"
+    },
+    {
+      "id": 20,
+      "title": "Recipe App",
+      "description": "Find and share recipes",
+      "skills": ["Vue.js", "Firebase", "CSS"],
+      "members": 3,
+      "status": "recruiting"
     }
   ]);
 
