@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   FiCode,
   FiUsers,
@@ -7,7 +8,7 @@ import {
   FiGitBranch,
   FiZap,
   FiMenu,
-  FiX
+  FiX,
 } from "react-icons/fi";
 
 const Home = () => {
@@ -24,25 +25,31 @@ const Home = () => {
     const checkIfMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
+
     
+
     checkIfMobile();
-    window.addEventListener('resize', checkIfMobile);
-    
-    return () => window.removeEventListener('resize', checkIfMobile);
+    window.addEventListener("resize", checkIfMobile);
+
+    return () => window.removeEventListener("resize", checkIfMobile);
   }, []);
 
   // Handle beta badge click
   const handleBetaClick = () => {
     setIsBetaClicked(true);
     setTimeout(() => {
-      window.open("https://checkout.stripe.com/pay/...", "_blank", "noopener,noreferrer");
+      window.open(
+        "https://checkout.stripe.com/pay/...",
+        "_blank",
+        "noopener,noreferrer"
+      );
     }, 500);
   };
 
   // Toggle mobile menu
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-    document.body.style.overflow = isMenuOpen ? 'auto' : 'hidden';
+    document.body.style.overflow = isMenuOpen ? "auto" : "hidden";
   };
 
   // Mobile menu items
@@ -50,7 +57,7 @@ const Home = () => {
     { name: "Home", icon: <FiCode />, path: "/" },
     { name: "Projects", icon: <FiGitBranch />, path: "/projects" },
     { name: "Match", icon: <FiUsers />, path: "/match" },
-    { name: "Contact", icon: <FiMessageSquare />, path: "/contact" }
+    { name: "Contact", icon: <FiMessageSquare />, path: "/contact" },
   ];
 
   return (
@@ -62,7 +69,7 @@ const Home = () => {
             <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
               DevMatch
             </span>
-            <button 
+            <button
               onClick={toggleMenu}
               className="text-white focus:outline-none"
               aria-label="Toggle menu"
@@ -74,13 +81,15 @@ const Home = () => {
               )}
             </button>
           </div>
-          
+
           {/* Mobile Menu Content */}
-          <div className={`
+          <div
+            className={`
             fixed inset-0 bg-gray-900/95 backdrop-blur-sm z-40 pt-16
             transition-all duration-300 ease-in-out
-            ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}
-          `}>
+            ${isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"}
+          `}
+          >
             <div className="flex flex-col items-center justify-center h-full space-y-8">
               {mobileMenuItems.map((item, index) => (
                 <a
@@ -93,7 +102,7 @@ const Home = () => {
                   <span>{item.name}</span>
                 </a>
               ))}
-              <button 
+              <button
                 className="px-6 py-3 bg-indigo-600 text-white rounded-lg mt-8"
                 onClick={handleBetaClick}
               >
@@ -105,7 +114,11 @@ const Home = () => {
       )}
 
       {/* Hero Section */}
-      <section className={`relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden ${isMobile ? 'mt-16' : ''}`}>
+      <section
+        className={`relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden ${
+          isMobile ? "mt-16" : ""
+        }`}
+      >
         <div className="max-w-7xl mx-auto text-center">
           <button
             onClick={handleBetaClick}
@@ -131,63 +144,71 @@ const Home = () => {
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
               DevMatch
-            </span> — Find Your Perfect Dev Team
+            </span>{" "}
+            — Find Your Perfect Dev Team
           </h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-10">
-            AI-powered matchmaking connects you with ideal teammates. Collaborate in real-time, build faster, and create amazing projects together.
+            AI-powered matchmaking connects you with ideal teammates.
+            Collaborate in real-time, build faster, and create amazing projects
+            together.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <button className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition duration-300 flex items-center justify-center">
+            <Link to="/match"
+            className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition duration-300 flex items-center justify-center">
               <FiCode className="mr-2" /> Start Matching
-            </button>
-            <button className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg backdrop-blur-sm transition duration-300">
+            </Link>
+            <a href="#how-works" className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg backdrop-blur-sm transition duration-300">
               See How It Works
-            </button>
+            </a>
           </div>
         </div>
-        
+
         {/* Floating code elements with glass effect */}
-        
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white/5 backdrop-blur-sm">
+      <section id="how-works" className="py-20 px-4 sm:px-6 lg:px-8 bg-white/5 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-white mb-12">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
               How DevMatch Works
             </span>
           </h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
                 title: "AI Matchmaking",
-                description: "Our algorithm analyzes skills, experience, and project needs to find your perfect teammates",
+                description:
+                  "Our algorithm analyzes skills, experience, and project needs to find your perfect teammates",
                 icon: <FiCpu className="text-indigo-400 text-3xl" />,
-                color: "from-indigo-500/20 to-indigo-600/20"
+                color: "from-indigo-500/20 to-indigo-600/20",
               },
               {
                 title: "Real-Time Chat",
-                description: "Integrated messaging with code snippets and project sharing to start collaborating immediately",
+                description:
+                  "Integrated messaging with code snippets and project sharing to start collaborating immediately",
                 icon: <FiMessageSquare className="text-purple-400 text-3xl" />,
-                color: "from-purple-500/20 to-purple-600/20"
+                color: "from-purple-500/20 to-purple-600/20",
               },
               {
                 title: "Project Collaboration",
-                description: "Shared workspaces with Git integration, task management, and live coding",
+                description:
+                  "Shared workspaces with Git integration, task management, and live coding",
                 icon: <FiUsers className="text-pink-400 text-3xl" />,
-                color: "from-pink-500/20 to-pink-600/20"
-              }
+                color: "from-pink-500/20 to-pink-600/20",
+              },
             ].map((feature, index) => (
-              <div 
+              <div
                 key={index}
                 className={`p-6 rounded-xl backdrop-blur-md border border-white/10 hover:border-white/20 transition duration-300 bg-gradient-to-br ${feature.color}`}
               >
                 <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-white/10 mb-4">
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">
+                  {feature.title}
+                </h3>
                 <p className="text-gray-300">{feature.description}</p>
               </div>
             ))}
@@ -201,15 +222,35 @@ const Home = () => {
           <h2 className="text-3xl font-bold text-center text-white mb-12">
             Meet Your Next <span className="text-indigo-300">Teammates</span>
           </h2>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { name: "Alex", role: "React Specialist", skills: ["TypeScript", "Next.js", "UI/UX"], match: "92%" },
-              { name: "Vikas Pal", role: "Backend Engineer", skills: ["Node.js", "Python", "Spring boot"], match: "89%" },
-              { name: "Jordan", role: "Full Stack Dev", skills: ["React", "GraphQL", "Docker"], match: "95%" },
-              { name: "Taylor", role: "DevOps Engineer", skills: ["Kubernetes", "CI/CD", "Terraform"], match: "87%" }
+              {
+                name: "Alex",
+                role: "React Specialist",
+                skills: ["TypeScript", "Next.js", "UI/UX"],
+                match: "92%",
+              },
+              {
+                name: "Vikas Pal",
+                role: "Backend Engineer",
+                skills: ["Node.js", "Python", "Spring boot"],
+                match: "89%",
+              },
+              {
+                name: "Jordan",
+                role: "Full Stack Dev",
+                skills: ["React", "GraphQL", "Docker"],
+                match: "95%",
+              },
+              {
+                name: "Taylor",
+                role: "DevOps Engineer",
+                skills: ["Kubernetes", "CI/CD", "Terraform"],
+                match: "87%",
+              },
             ].map((dev, index) => (
-              <div 
+              <div
                 key={index}
                 className="p-6 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 hover:border-indigo-400/50 transition duration-300 group"
               >
@@ -218,14 +259,16 @@ const Home = () => {
                     {dev.name.charAt(0)}
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-white">{dev.name}</h3>
+                    <h3 className="text-lg font-semibold text-white">
+                      {dev.name}
+                    </h3>
                     <p className="text-indigo-300 text-sm">{dev.role}</p>
                   </div>
                 </div>
                 <div className="mb-4">
                   {dev.skills.map((skill, i) => (
-                    <span 
-                      key={i} 
+                    <span
+                      key={i}
                       className="inline-block bg-indigo-900/30 text-indigo-300 text-xs px-2 py-1 rounded mr-2 mb-2"
                     >
                       {skill}
@@ -244,14 +287,20 @@ const Home = () => {
 
       {/* CTA Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center bg-gradient-to-r from-indigo-500/20 to-purple-500/20 p-8 rounded-2xl backdrop-blur-md border border-indigo-400/20">
-          <h2 className="text-3xl font-bold text-white mb-6">Ready to Find Your Dream Team?</h2>
+        <div className="max-w-2xl mx-auto text-center bg-gradient-to-r from-indigo-500/20 to-purple-500/20 p-8 rounded-2xl backdrop-blur-md border border-indigo-400/20">
+          <h2 className="text-3xl font-bold text-white mb-6">
+            Ready to Find Your Dream Team?
+          </h2>
           <p className="text-xl text-gray-300 mb-8">
-            Join thousands of developers already building amazing projects together on DevMatch.
+            Join thousands of developers already building amazing projects
+            together on DevMatch.
           </p>
-          <button className="px-8 py-3 bg-white text-indigo-900 hover:bg-gray-100 font-bold rounded-lg transition duration-300 flex items-center mx-auto">
+          <Link
+            to="/signup"
+            className="w-full max-w-xs px-6 py-3 bg-white text-indigo-900 hover:bg-gray-100 font-bold rounded-lg transition duration-300 flex items-center justify-center mx-auto"
+          >
             <FiUsers className="mr-2" /> Sign Up Free
-          </button>
+          </Link>
         </div>
       </section>
 
