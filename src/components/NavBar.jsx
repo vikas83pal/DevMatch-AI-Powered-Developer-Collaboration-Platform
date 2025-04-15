@@ -68,6 +68,7 @@ const NavBar = () => {
                 style={{ color: 'white' }} // Inline fallback
               >
                 <FiMessageSquare className="mr-2" /> Contact
+                
               </Link>
               <Link 
                 to="/login" 
