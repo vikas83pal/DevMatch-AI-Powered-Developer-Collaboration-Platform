@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiCode, FiUsers, FiMessageSquare, FiLogIn, FiGitBranch } from 'react-icons/fi';
+import { FiCode, FiUsers, FiMessageSquare, FiLogIn, FiGitBranch, FiAward } from 'react-icons/fi';
 
 const NavBar = () => {
   // State to manage mobile menu visibility
@@ -65,6 +65,12 @@ const NavBar = () => {
                 className="text-white hover:text-indigo-300 px-3 py-2 text-sm font-medium flex items-center transition"
               >
                 <FiUsers className="mr-2" /> Match
+              </Link>
+              <Link
+                to="/arena"
+                className="text-white hover:text-indigo-300 px-3 py-2 text-sm font-medium flex items-center transition"
+              >
+                <FiAward className="mr-2" /> Coding
               </Link>
               <Link
                 to="/contact"
@@ -146,6 +152,13 @@ const NavBar = () => {
             onClick={toggleMenu}
           >
             Match
+          </Link>
+          <Link
+            to="/arena"
+            className="block text-white hover:text-indigo-300 text-sm font-medium"
+            onClick={toggleMenu}
+          >
+            Arena
           </Link>
           <Link
             to="/contact"
