@@ -2,8 +2,17 @@ import React from 'react';
 import { FcGoogle } from 'react-icons/fc';
 import { FaGithub } from 'react-icons/fa';
 import { FiMail, FiLock } from 'react-icons/fi';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useState } from 'react';
+import { useAuth } from "../auth/AuthProvider"
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const { login } = useAuth();
+  const navigate =useNavigate();
+
+
   const handleGoogleLogin = () => {
     // Implement Google OAuth logic here
     console.log('Google login clicked');
@@ -15,12 +24,54 @@ const Login = () => {
     console.log('GitHub login clicked');
     // window.location.href = 'your-github-oauth-endpoint';
   };
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle email/password login
-  };
+    try {
+      const res = await fetch("http://localhost:8080/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+  
+      if (res.ok) {
+        const data = await res.json();
+        console.log("Success:", data);
+        toast.success("Login successful!", {
+          position: "top-center",
+          autoClose: 1000,
+        });
 
+        login();
+        setTimeout(() => {
+          
+          navigate("/");
+        }, 1000);
+
+      } else {
+        const errorMsg = await res.text();
+        console.error("Login failed:", errorMsg);
+        toast.error("Login failed", {
+          position: "top-center",
+          autoClose: 3000,
+        });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("An unexpected error occurred.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+    }
+  };
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pt-24 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
       <div className="w-full max-w-md">
@@ -67,6 +118,8 @@ const Login = () => {
                 <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
                 <input
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
                   className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   required
@@ -79,8 +132,10 @@ const Login = () => {
               <div className="relative">
                 <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
                 <input
-                  type="password"
-                  placeholder="••••••••"
+                   type="password"
+                   value={password}
+                   onChange={(e) => setPassword(e.target.value)}
+                   placeholder="••••••••"
                   className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   required
                 />
@@ -103,6 +158,8 @@ const Login = () => {
             >
               Sign In
             </button>
+
+           
           </form>
 
           {/* Sign Up Link */}
@@ -113,6 +170,7 @@ const Login = () => {
             </a>
           </div>
         </div>
+        <ToastContainer />
       </div>
     </div>
   );
