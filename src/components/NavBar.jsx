@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { FiCode, FiUsers, FiMessageSquare, FiLogIn, FiGitBranch, FiAward } from 'react-icons/fi';
+import { Link, Navigate } from 'react-router-dom';
+import { FiCode, FiUsers, FiMessageSquare, FiLogIn, FiGitBranch, FiAward, FiLogOut } from 'react-icons/fi';
+import { useAuth } from '../auth/AuthProvider';
+import { useNavigate } from 'react-router-dom';
 
 const NavBar = () => {
   // State to manage mobile menu visibility
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
   // Toggle menu visibility
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  }
 
   const navbarStyles = {
     position: 'fixed',
@@ -79,12 +89,24 @@ const NavBar = () => {
                 <FiMessageSquare className="mr-2" /> Contact
                 
               </Link>
-              <Link
+
+              { isAuthenticated ? (
+                  <button 
+                   onClick={handleLogout}
+                   className="ml-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition flex items-center"
+                   >
+                    <FiLogOut className='mr-2' /> Logout
+                   </button>
+              ) : (
+
+                <Link
                 to="/login"
                 className="ml-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition flex items-center"
               >
                 <FiLogIn className="mr-2" /> Login
               </Link>
+              )}
+              
             </div>
           </div>
 

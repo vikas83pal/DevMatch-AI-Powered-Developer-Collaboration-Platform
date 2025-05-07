@@ -1,11 +1,50 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FiUser, FiMail, FiLock } from 'react-icons/fi';
+import axios from "axios";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
-  const handleSubmit = (e) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+  });
+
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Signup form submitted');
-    // Add form submission logic here (e.g., send data to an API)
+    try {
+      const res = await axios.post('http://localhost:8080/api/register', formData);
+      console.log("registered");
+      toast.success('User registered successfully!', {
+        position: "top-center",
+        autoClose: 1000,
+      });
+
+      setFormData({
+        name: '',
+        email: '',
+        password: '',
+      });
+
+      setTimeout(() => {
+        navigate('/login');
+      }, 1000);
+    } catch (e) {
+      console.log(e);
+      toast.error('Failed to register user. Please try again.', {
+        position: "top-center",
+        autoClose: 3000,
+      });
+    }
   };
 
   return (
@@ -28,6 +67,9 @@ const Signup = () => {
                 <FiUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
                 <input
                   type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
                   placeholder="Your Name"
                   className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   required
@@ -41,6 +83,9 @@ const Signup = () => {
                 <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
                 <input
                   type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   placeholder="your@email.com"
                   className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   required
@@ -54,6 +99,9 @@ const Signup = () => {
                 <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
                 <input
                   type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
                   placeholder="••••••••"
                   className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   required
@@ -78,6 +126,7 @@ const Signup = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };
