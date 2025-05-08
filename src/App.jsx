@@ -12,6 +12,7 @@ import ForgotPassword from "./components/ForgotPassword";
 import Arena from "./components/Arena";
 import ProtectedRoute from "../src/auth/protectedRoute"
 import { AuthProvider } from "../src/auth/AuthProvider";
+import ProjectDetails from "./components/ProjectDetails";
 
 function App() {
   return (
@@ -25,19 +26,30 @@ function App() {
           {/* Protected Routes */}
           <Route
             path="/projects"
-            element={
-              <ProtectedRoute>
-                <Project />
-              </ProtectedRoute>
-            }
+            element={<Project />}
+            // element={
+            //   <ProtectedRoute>
+            //     <Project />
+            //   </ProtectedRoute>
+            // }
           />
           <Route
+            path="/projects/:projectId"
+            element={<ProjectDetails />}
+            // element={
+            //   <ProtectedRoute>
+            //     <ProjectDetails />
+            //   </ProtectedRoute>
+            // }
+          />          
+          <Route
             path="/match"
-            element={
-              <ProtectedRoute>
-                <Match />
-              </ProtectedRoute>
-            }
+            element={<Match />}
+            // element={
+            //   <ProtectedRoute>
+            //     <Match />
+            //   </ProtectedRoute>
+            // }
           />
           <Route path="/login" element={<Login />} />
           <Route path="/contact" element={<Contact />} />
@@ -45,11 +57,12 @@ function App() {
           <Route path="/forgot" element={<ForgotPassword />} />
           <Route
             path="/arena"
-            element={
-              <ProtectedRoute>
-                <Arena />
-              </ProtectedRoute>
-            }
+            element={<Arena />}
+            // element={
+            //   <ProtectedRoute>
+            //     <Arena />
+            //   </ProtectedRoute>
+            // }
           />
         </Routes>
         <Footer />
