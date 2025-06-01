@@ -1,9 +1,29 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiUsers, FiFilter, FiSearch, FiSend } from 'react-icons/fi';
+import ChatBox from './ChatBox';
+
+// Simulated AI response (replace with real backend or LLM API later)
+const getAIResponse = async (userMessage, dev) => {
+  await new Promise((res) => setTimeout(res, 900));
+  const msg = userMessage.toLowerCase();
+  if (msg.includes('hello') || msg.includes('hi')) {
+    return `Hi! I'm ${dev.name}, a ${dev.role}. How can I help you today?`;
+  }
+  if (msg.includes('skills')) {
+    return `My main skills are: ${dev.skills.join(', ')}.`;
+  }
+  if (msg.includes('available') || msg.includes('availability')) {
+    return `I'm currently available for ${dev.availability} work.`;
+  }
+  if (msg.includes('experience')) {
+    return `I have strong experience as a ${dev.role}. Ask me about my projects!`;
+  }
+  return `Thanks for your message! I am ${dev.name}, a ${dev.role}. Feel free to ask me about my experience, skills, or availability.`;
+};
 
 const Match = () => {
-  const [developers, setDevelopers] = useState([
+  const [developers] = useState([
     {
       id: 1,
       name: 'Alice Johnson',
@@ -38,7 +58,8 @@ const Match = () => {
 
   const [chatMessages, setChatMessages] = useState([]);
   const [userMessage, setUserMessage] = useState('');
-  const [activeChat, setActiveChat] = useState(null); // Tracks the active chat developer
+  const [activeChat, setActiveChat] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
   const navigate = useNavigate();
 
   const filteredDevelopers = developers.filter((dev) => {
@@ -49,19 +70,18 @@ const Match = () => {
     );
   });
 
-  const handleSendMessage = () => {
-    if (!userMessage.trim()) return;
-
+  const handleSendMessage = async () => {
+    if (!userMessage.trim() || !activeChat) return;
     setChatMessages([...chatMessages, { sender: 'user', text: userMessage }]);
+    setAiLoading(true);
 
-    // Simulate bot response
-    setTimeout(() => {
-      setChatMessages((prevMessages) => [
-        ...prevMessages,
-        { sender: 'bot', text: `Hello! You are chatting with ${activeChat.name}.` },
-      ]);
-    }, 500);
+    const aiReply = await getAIResponse(userMessage, activeChat);
 
+    setChatMessages((prevMessages) => [
+      ...prevMessages,
+      { sender: 'ai', text: aiReply },
+    ]);
+    setAiLoading(false);
     setUserMessage('');
   };
 
@@ -71,15 +91,21 @@ const Match = () => {
   };
 
   const handleProfileClick = (developerId) => {
-    navigate(`/profile/${developerId}`); // Redirect to the developer's profile page
+    navigate(`/profile/${developerId}`);
   };
 
   const handleChatClick = (developer) => {
-    setActiveChat(developer); // Set the active chat developer
-    setChatMessages([{ sender: 'bot', text: `You are now chatting with ${developer.name}.` }]);
+    setActiveChat(developer);
+    setChatMessages([
+      {
+        sender: 'ai',
+        text: `👋 Hello! I'm ${developer.name}, your AI-powered assistant. Ask me anything about my skills, experience, or availability!`,
+      },
+    ]);
   };
 
   return (
+    
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -90,7 +116,6 @@ const Match = () => {
               Developer Matches
             </span>
           </h1>
-
           <div className="flex space-x-4 w-full md:w-auto">
             <div className="relative flex-grow md:flex-grow-0">
               <input
@@ -100,7 +125,6 @@ const Match = () => {
               />
               <FiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
-
             <button className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition">
               <FiFilter className="mr-2" />
               <span>Filters</span>
@@ -108,7 +132,7 @@ const Match = () => {
           </div>
         </div>
 
-        {/* Match Filters */}
+        {/* Filters */}
         <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 mb-8 border border-white/10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <select
@@ -143,7 +167,7 @@ const Match = () => {
           </div>
         </div>
 
-        {/* Developers Grid */}
+        {/* Developers List */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredDevelopers.map((dev) => (
             <div
@@ -179,46 +203,14 @@ const Match = () => {
 
       {/* Chat Section */}
       {activeChat && (
-        <div className="fixed bottom-0 left-0 right-0 bg-gray-800/90 p-4 border-t border-gray-700">
-          <div className="max-w-4xl mx-auto">
-            <div className="h-64 overflow-y-auto bg-gray-900 rounded-lg p-4 mb-4">
-              {chatMessages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`mb-2 ${
-                    msg.sender === 'user' ? 'text-right' : 'text-left'
-                  }`}
-                >
-                  <span
-                    className={`inline-block px-4 py-2 rounded-lg ${
-                      msg.sender === 'user'
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-gray-700 text-gray-300'
-                    }`}
-                  >
-                    {msg.text}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <div className="flex items-center">
-              <input
-                type="text"
-                placeholder={`Message ${activeChat.name}...`}
-                className="flex-grow bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none"
-                value={userMessage}
-                onChange={(e) => setUserMessage(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-              />
-              <button
-                onClick={handleSendMessage}
-                className="ml-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition"
-              >
-                <FiSend />
-              </button>
-            </div>
-          </div>
-        </div>
+        <ChatBox
+          activeChat={activeChat}
+          chatMessages={chatMessages}
+          userMessage={userMessage}
+          aiLoading={aiLoading}
+          setUserMessage={setUserMessage}
+          handleSendMessage={handleSendMessage}
+        />
       )}
     </div>
   );

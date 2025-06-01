@@ -80,7 +80,7 @@ const NavBar = () => {
                 to="/arena"
                 className="text-white hover:text-indigo-300 px-3 py-2 text-sm font-medium flex items-center transition"
               >
-                <FiAward className="mr-2" /> Coding
+                <FiAward className="mr-2" /> RoadMap
               </Link>
               <Link
                 to="/contact"
