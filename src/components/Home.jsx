@@ -232,7 +232,7 @@ const Home = () => {
                 match: "92%",
               },
               {
-                name: "Vikas Pal",
+                name: "Killy",
                 role: "Backend Engineer",
                 skills: ["Node.js", "Python", "Spring boot"],
                 match: "89%",
