@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiUser, FiMail, FiLock } from 'react-icons/fi';
-import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
@@ -12,39 +11,39 @@ const Signup = () => {
     password: '',
   });
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if user is logged in (in localStorage)
+    const user = localStorage.getItem('user');
+    if (user) setIsLoggedIn(true);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const res = await axios.post('http://localhost:8080/api/register', formData);
-      console.log("registered");
-      toast.success('User registered successfully!', {
-        position: "top-center",
-        autoClose: 1000,
-      });
 
-      setFormData({
-        name: '',
-        email: '',
-        password: '',
-      });
+    // Save user to localStorage
+    localStorage.setItem('user', JSON.stringify(formData));
+    setIsLoggedIn(true);
 
-      setTimeout(() => {
-        navigate('/login');
-      }, 1000);
-    } catch (e) {
-      console.log(e);
-      toast.error('Failed to register user. Please try again.', {
-        position: "top-center",
-        autoClose: 3000,
-      });
-    }
+    toast.success('User signed up and logged in!', {
+      position: "top-center",
+      autoClose: 1500,
+    });
+
+    // Clear form
+    setFormData({ name: '', email: '', password: '' });
+
+    // Redirect after 1.5s
+    setTimeout(() => {
+      navigate('/'); // Rehplace with your app page
+    }, 1500);
   };
 
   return (

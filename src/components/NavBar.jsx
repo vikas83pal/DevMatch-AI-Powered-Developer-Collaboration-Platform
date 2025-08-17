@@ -1,25 +1,13 @@
 import React, { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
-import { FiCode, FiUsers, FiMessageSquare, FiLogIn, FiGitBranch, FiAward, FiLogOut } from 'react-icons/fi';
-import { useAuth } from '../auth/AuthProvider';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { FiCode, FiUsers, FiMessageSquare, FiGitBranch, FiAward, FiLogIn } from 'react-icons/fi';
 
 const NavBar = () => {
-  // State to manage mobile menu visibility
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const { isAuthenticated, logout } = useAuth();
-  const navigate = useNavigate();
-
-  // Toggle menu visibility
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  }
 
   const navbarStyles = {
     position: 'fixed',
@@ -58,93 +46,37 @@ const NavBar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-center space-x-8">
-              <Link
-                to="/"
-                className="text-white hover:text-indigo-300 px-3 py-2 text-sm font-medium flex items-center transition"
-              >
+              <Link to="/" className="text-white hover:text-indigo-300 px-3 py-2 text-sm font-medium flex items-center transition">
                 <FiCode className="mr-2" /> Home
               </Link>
-              <Link
-                to="/projects"
-                className="text-white hover:text-indigo-300 px-3 py-2 text-sm font-medium flex items-center transition"
-              >
+              <Link to="/projects" className="text-white hover:text-indigo-300 px-3 py-2 text-sm font-medium flex items-center transition">
                 <FiGitBranch className="mr-2" /> Projects
               </Link>
-              <Link
-                to="/match"
-                className="text-white hover:text-indigo-300 px-3 py-2 text-sm font-medium flex items-center transition"
-              >
+              <Link to="/match" className="text-white hover:text-indigo-300 px-3 py-2 text-sm font-medium flex items-center transition">
                 <FiUsers className="mr-2" /> Match
               </Link>
-              <Link
-                to="/arena"
-                className="text-white hover:text-indigo-300 px-3 py-2 text-sm font-medium flex items-center transition"
-              >
+              <Link to="/arena" className="text-white hover:text-indigo-300 px-3 py-2 text-sm font-medium flex items-center transition">
                 <FiAward className="mr-2" /> RoadMap
               </Link>
-              <Link
-                to="/contact"
-                className="text-white hover:text-indigo-300 px-3 py-2 text-sm font-medium flex items-center transition"
-              >
+              <Link to="/contact" className="text-white hover:text-indigo-300 px-3 py-2 text-sm font-medium flex items-center transition">
                 <FiMessageSquare className="mr-2" /> Contact
-                
               </Link>
-
-              { isAuthenticated ? (
-                  <button 
-                   onClick={handleLogout}
-                   className="ml-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition flex items-center"
-                   >
-                    <FiLogOut className='mr-2' /> Logout
-                   </button>
-              ) : (
-
-                <Link
-                to="/login"
-                className="ml-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition flex items-center"
-              >
+              <Link to="/login" className="ml-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition flex items-center">
                 <FiLogIn className="mr-2" /> Login
               </Link>
-              )}
-              
             </div>
           </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
-            <button
-              onClick={toggleMenu}
-              className="text-white hover:text-white focus:outline-none"
-            >
+            <button onClick={toggleMenu} className="text-white hover:text-white focus:outline-none">
               {isMenuOpen ? (
-                <svg
-                  className="h-6 w-6"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               ) : (
-                <svg
-                  className="h-6 w-6"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
+                <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               )}
             </button>
@@ -155,48 +87,12 @@ const NavBar = () => {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-gray-900 text-white px-4 py-6 space-y-4">
-          <Link
-            to="/"
-            className="block text-white hover:text-indigo-300 text-sm font-medium"
-            onClick={toggleMenu}
-          >
-            Home
-          </Link>
-          <Link
-            to="/projects"
-            className="block text-white hover:text-indigo-300 text-sm font-medium"
-            onClick={toggleMenu}
-          >
-            Projects
-          </Link>
-          <Link
-            to="/match"
-            className="block text-white hover:text-indigo-300 text-sm font-medium"
-            onClick={toggleMenu}
-          >
-            Match
-          </Link>
-          <Link
-            to="/arena"
-            className="block text-white hover:text-indigo-300 text-sm font-medium"
-            onClick={toggleMenu}
-          >
-            Arena
-          </Link>
-          <Link
-            to="/contact"
-            className="block text-white hover:text-indigo-300 text-sm font-medium"
-            onClick={toggleMenu}
-          >
-            Contact
-          </Link>
-          <Link
-            to="/login"
-            className="block text-white hover:text-indigo-300 text-sm font-medium"
-            onClick={toggleMenu}
-          >
-            Login
-          </Link>
+          <Link to="/" className="block text-white hover:text-indigo-300 text-sm font-medium" onClick={toggleMenu}>Home</Link>
+          <Link to="/projects" className="block text-white hover:text-indigo-300 text-sm font-medium" onClick={toggleMenu}>Projects</Link>
+          <Link to="/match" className="block text-white hover:text-indigo-300 text-sm font-medium" onClick={toggleMenu}>Match</Link>
+          <Link to="/arena" className="block text-white hover:text-indigo-300 text-sm font-medium" onClick={toggleMenu}>Arena</Link>
+          <Link to="/contact" className="block text-white hover:text-indigo-300 text-sm font-medium" onClick={toggleMenu}>Contact</Link>
+          <Link to="/login" className="block text-white hover:text-indigo-300 text-sm font-medium" onClick={toggleMenu}>Login</Link>
         </div>
       )}
     </nav>

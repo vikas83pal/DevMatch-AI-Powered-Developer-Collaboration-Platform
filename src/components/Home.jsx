@@ -39,7 +39,7 @@ const Home = () => {
     setIsBetaClicked(true);
     setTimeout(() => {
       window.open(
-        "https://checkout.stripe.com/pay/...",
+        "https://docs.google.com/forms/d/e/1FAIpQLSdEyUCm4fkTCSEjliYdj1_QEQg93sKXZdzJBtqs31tRMV2dHA/viewform?usp=header",
         "_blank",
         "noopener,noreferrer"
       );
@@ -139,7 +139,7 @@ const Home = () => {
             disabled={isBetaClicked}
           >
             <FiZap className={`mr-2 ${isBetaClicked ? "animate-spin" : ""}`} />
-            {isBetaClicked ? "Redirecting..." : "Beta now live!"}
+           {isBetaClicked ? "Beta now live!" : "Join Beta"}
           </button>
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">

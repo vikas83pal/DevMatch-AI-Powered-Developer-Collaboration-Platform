@@ -1,82 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FcGoogle } from 'react-icons/fc';
 import { FaGithub } from 'react-icons/fa';
 import { FiMail, FiLock } from 'react-icons/fi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useState } from 'react';
-import { useAuth } from "../auth/AuthProvider"
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const { login } = useAuth();
-  const navigate =useNavigate();
-
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleGoogleLogin = () => {
-    // Implement Google OAuth logic here
     console.log('Google login clicked');
-    // window.location.href = 'your-google-oauth-endpoint';
   };
 
   const handleGithubLogin = () => {
-    // Implement GitHub OAuth logic here
     console.log('GitHub login clicked');
-    // window.location.href = 'your-github-oauth-endpoint';
   };
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:8080/api/login", {
+      const res = await fetch("http://localhost:5000/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
-  
+
       if (res.ok) {
         const data = await res.json();
-        console.log("Success:", data);
-        toast.success("Login successful!", {
-          position: "top-center",
-          autoClose: 1000,
-        });
+        console.log("Login success:", data);
+        toast.success("Login successful!", { position: "top-center", autoClose: 1000 });
 
-        login();
         setTimeout(() => {
-          
-          navigate("/");
+          navigate("/projects"); // Redirect to projects page
         }, 1000);
-
       } else {
         const errorMsg = await res.text();
         console.error("Login failed:", errorMsg);
-        toast.error("Login failed", {
-          position: "top-center",
-          autoClose: 3000,
-        });
+        toast.error("Login failed: " + errorMsg, { position: "top-center", autoClose: 3000 });
       }
     } catch (error) {
-      console.error("Error:", error);
-      toast.error("An unexpected error occurred.", {
-        position: "top-center",
-        autoClose: 3000,
-      });
+      console.error("Unexpected error:", error);
+      toast.error("An unexpected error occurred.", { position: "top-center", autoClose: 3000 });
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pt-24 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
       <div className="w-full max-w-md">
         <div className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10">
-          {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 mb-2">
               Welcome Back
@@ -84,33 +58,28 @@ const Login = () => {
             <p className="text-gray-400">Sign in to continue to DevMatch</p>
           </div>
 
-          {/* Social Login Buttons */}
           <div className="space-y-4 mb-6">
             <button
               onClick={handleGoogleLogin}
               className="w-full flex items-center justify-center py-3 px-4 bg-white/10 hover:bg-white/20 text-white rounded-lg transition border border-white/10"
             >
-              <FcGoogle className="text-xl mr-3" />
-              Continue with Google
+              <FcGoogle className="text-xl mr-3" /> Continue with Google
             </button>
-            
+
             <button
               onClick={handleGithubLogin}
               className="w-full flex items-center justify-center py-3 px-4 bg-white/10 hover:bg-white/20 text-white rounded-lg transition border border-white/10"
             >
-              <FaGithub className="text-xl mr-3" />
-              Continue with GitHub
+              <FaGithub className="text-xl mr-3" /> Continue with GitHub
             </button>
           </div>
 
-          {/* Divider */}
           <div className="flex items-center my-6">
             <div className="flex-grow border-t border-gray-700"></div>
             <span className="mx-4 text-gray-400 text-sm">OR</span>
             <div className="flex-grow border-t border-gray-700"></div>
           </div>
 
-          {/* Email/Password Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-gray-400 text-sm mb-1">Email</label>
@@ -126,16 +95,16 @@ const Login = () => {
                 />
               </div>
             </div>
-            
+
             <div>
               <label className="block text-gray-400 text-sm mb-1">Password</label>
               <div className="relative">
                 <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
                 <input
-                   type="password"
-                   value={password}
-                   onChange={(e) => setPassword(e.target.value)}
-                   placeholder="••••••••"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
                   className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   required
                 />
@@ -158,11 +127,8 @@ const Login = () => {
             >
               Sign In
             </button>
-
-           
           </form>
 
-          {/* Sign Up Link */}
           <div className="text-center mt-6 text-gray-400">
             Don't have an account?{' '}
             <a href="/signup" className="text-indigo-400 hover:text-indigo-300">

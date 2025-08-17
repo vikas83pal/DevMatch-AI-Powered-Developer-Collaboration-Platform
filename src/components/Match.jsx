@@ -1,22 +1,23 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FiUsers, FiFilter, FiSearch, FiSend } from 'react-icons/fi';
-import ChatBox from './ChatBox';
+import React, { useState } from "react";
+import { FiUsers, FiFilter, FiSearch, FiX, FiMail, FiGithub, FiLinkedin, FiSend } from "react-icons/fi";
 
-// Simulated AI response (replace with real backend or LLM API later)
+
+
+
+// Simulated AI response
 const getAIResponse = async (userMessage, dev) => {
   await new Promise((res) => setTimeout(res, 900));
   const msg = userMessage.toLowerCase();
-  if (msg.includes('hello') || msg.includes('hi')) {
+  if (msg.includes("hello") || msg.includes("hi")) {
     return `Hi! I'm ${dev.name}, a ${dev.role}. How can I help you today?`;
   }
-  if (msg.includes('skills')) {
-    return `My main skills are: ${dev.skills.join(', ')}.`;
+  if (msg.includes("skills")) {
+    return `My main skills are: ${dev.skills.join(", ")}.`;
   }
-  if (msg.includes('available') || msg.includes('availability')) {
+  if (msg.includes("available") || msg.includes("availability")) {
     return `I'm currently available for ${dev.availability} work.`;
   }
-  if (msg.includes('experience')) {
+  if (msg.includes("experience")) {
     return `I have strong experience as a ${dev.role}. Ask me about my projects!`;
   }
   return `Thanks for your message! I am ${dev.name}, a ${dev.role}. Feel free to ask me about my experience, skills, or availability.`;
@@ -26,86 +27,111 @@ const Match = () => {
   const [developers] = useState([
     {
       id: 1,
-      name: 'Alice Johnson',
-      role: 'Frontend Developer',
-      skills: ['React', 'JavaScript', 'CSS'],
-      availability: 'Full-time',
+      name: "Alice Johnson",
+      role: "Frontend Developer",
+      skills: ["React", "JavaScript", "CSS"],
+      availability: "Full-time",
       matchScore: 95,
+      bio: "Frontend developer passionate about creating smooth, accessible UIs.",
+      projects: [
+        { title: "E-Commerce Store", description: "React-based store with Stripe payments." },
+        { title: "Portfolio Website", description: "Personal site showcasing skills." },
+      ],
+      contacts: {
+        email: "alice@example.com",
+        github: "https://github.com/alice",
+        linkedin: "https://linkedin.com/in/alice",
+      },
     },
     {
       id: 2,
-      name: 'Bob Smith',
-      role: 'Backend Developer',
-      skills: ['Node.js', 'Express', 'MongoDB'],
-      availability: 'Part-time',
+      name: "Bob Smith",
+      role: "Backend Developer",
+      skills: ["Node.js", "Express", "MongoDB"],
+      availability: "Part-time",
       matchScore: 88,
+      bio: "Backend engineer experienced in scalable APIs and databases.",
+      projects: [
+        { title: "Task Manager API", description: "REST API with JWT auth." },
+        { title: "Blog Platform", description: "Full backend for blogging system." },
+      ],
+      contacts: {
+        email: "bob@example.com",
+        github: "https://github.com/bobsmith",
+        linkedin: "https://linkedin.com/in/bobsmith",
+      },
     },
     {
       id: 3,
-      name: 'Charlie Brown',
-      role: 'Full-stack Developer',
-      skills: ['React', 'Node.js', 'GraphQL'],
-      availability: 'Full-time',
+      name: "Charlie Brown",
+      role: "Full-stack Developer",
+      skills: ["React", "Node.js", "GraphQL"],
+      availability: "Full-time",
       matchScore: 92,
+      bio: "Full-stack developer with expertise in GraphQL and modern stacks.",
+      projects: [
+        { title: "Chat App", description: "Real-time chat with WebSockets." },
+        { title: "Recipe Finder", description: "GraphQL-powered recipe search app." },
+      ],
+      contacts: {
+        email: "charlie@example.com",
+        github: "https://github.com/charliebrown",
+        linkedin: "https://linkedin.com/in/charliebrown",
+      },
+    },
+    {
+      id: 4,
+      name: "Diana Prince",
+      role: "UI/UX Designer",
+      skills: ["Figma", "Adobe XD", "Prototyping"],
+      availability: "Contract",
+      matchScore: 89,
+      bio: "Creative UI/UX designer with a knack for user-centered design.",
+      projects: [
+        { title: "Banking Dashboard", description: "UI/UX design for finance app." },
+        { title: "Travel Planner", description: "User flow and design prototypes." },
+      ],
+      contacts: {
+        email: "diana@example.com",
+        linkedin: "https://linkedin.com/in/dianaprince",
+      },
     },
   ]);
 
   const [filters, setFilters] = useState({
-    role: '',
-    availability: '',
+    role: "",
+    availability: "",
     minScore: 80,
   });
 
-  const [chatMessages, setChatMessages] = useState([]);
-  const [userMessage, setUserMessage] = useState('');
+  // const [chatMessages, setChatMessages] = useState([]);
+  const [userMessage, setUserMessage] = useState("");
   const [activeChat, setActiveChat] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
-  const navigate = useNavigate();
+  const [selectedDeveloper, setSelectedDeveloper] = useState(null);
 
   const filteredDevelopers = developers.filter((dev) => {
     return (
       dev.matchScore >= filters.minScore &&
-      (filters.role === '' || dev.role.includes(filters.role)) &&
-      (filters.availability === '' || dev.availability === filters.availability)
+      (filters.role === "" || dev.role.includes(filters.role)) &&
+      (filters.availability === "" || dev.availability === filters.availability)
     );
   });
 
-  const handleSendMessage = async () => {
-    if (!userMessage.trim() || !activeChat) return;
-    setChatMessages([...chatMessages, { sender: 'user', text: userMessage }]);
-    setAiLoading(true);
 
-    const aiReply = await getAIResponse(userMessage, activeChat);
-
-    setChatMessages((prevMessages) => [
-      ...prevMessages,
-      { sender: 'ai', text: aiReply },
-    ]);
-    setAiLoading(false);
-    setUserMessage('');
-  };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters({ ...filters, [name]: value });
   };
 
-  const handleProfileClick = (developerId) => {
-    navigate(`/profile/${developerId}`);
+  const handleProfileClick = (developer) => {
+    setSelectedDeveloper(developer);
   };
 
-  const handleChatClick = (developer) => {
-    setActiveChat(developer);
-    setChatMessages([
-      {
-        sender: 'ai',
-        text: `👋 Hello! I'm ${developer.name}, your AI-powered assistant. Ask me anything about my skills, experience, or availability!`,
-      },
-    ]);
-  };
+  
 
   return (
-    
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -116,20 +142,6 @@ const Match = () => {
               Developer Matches
             </span>
           </h1>
-          <div className="flex space-x-4 w-full md:w-auto">
-            <div className="relative flex-grow md:flex-grow-0">
-              <input
-                type="text"
-                placeholder="Search skills..."
-                className="pl-4 pr-10 py-2 bg-gray-800/50 backdrop-blur-sm text-white rounded-lg border border-gray-700 focus:border-indigo-500 focus:outline-none w-full"
-              />
-              <FiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            </div>
-            <button className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition">
-              <FiFilter className="mr-2" />
-              <span>Filters</span>
-            </button>
-          </div>
         </div>
 
         {/* Filters */}
@@ -145,6 +157,7 @@ const Match = () => {
               <option value="Frontend Developer">Frontend Developer</option>
               <option value="Backend Developer">Backend Developer</option>
               <option value="Full-stack Developer">Full-stack Developer</option>
+              <option value="UI/UX Designer">UI/UX Designer</option>
             </select>
             <select
               name="availability"
@@ -155,6 +168,7 @@ const Match = () => {
               <option value="">All Availability</option>
               <option value="Full-time">Full-time</option>
               <option value="Part-time">Part-time</option>
+              <option value="Contract">Contract</option>
             </select>
             <input
               type="number"
@@ -176,30 +190,93 @@ const Match = () => {
             >
               <h3
                 className="text-xl font-semibold text-white cursor-pointer"
-                onClick={() => handleProfileClick(dev.id)}
+                onClick={() => handleProfileClick(dev)}
               >
                 {dev.name}
               </h3>
               <p className="text-gray-300">{dev.role}</p>
-              <p className="text-gray-400">Skills: {dev.skills.join(', ')}</p>
+              <p className="text-gray-400">Skills: {dev.skills.join(", ")}</p>
               <p className="text-gray-400">Availability: {dev.availability}</p>
               <p className="text-gray-400">Match Score: {dev.matchScore}</p>
-              <button
-                onClick={() => handleChatClick(dev)}
-                className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition"
-              >
-                Chat
-              </button>
+              
             </div>
           ))}
         </div>
 
         {filteredDevelopers.length === 0 && (
           <div className="text-center py-12 text-gray-400">
-            No developers match your current filters. Try adjusting your criteria.
+            No developers match your current filters. Try adjusting your
+            criteria.
           </div>
         )}
       </div>
+
+      {/* Developer Details Modal */}
+      {selectedDeveloper && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-gray-900 p-6 rounded-2xl max-w-2xl w-full text-white relative">
+            <button
+              className="absolute top-3 right-3 text-gray-400 hover:text-white"
+              onClick={() => setSelectedDeveloper(null)}
+            >
+              <FiX size={22} />
+            </button>
+            <h2 className="text-2xl font-bold mb-2">{selectedDeveloper.name}</h2>
+            <p className="text-indigo-400 mb-2">{selectedDeveloper.role}</p>
+            <p className="mb-4">{selectedDeveloper.bio}</p>
+            <p className="text-gray-300">
+              <strong>Skills:</strong> {selectedDeveloper.skills.join(", ")}
+            </p>
+            <p className="text-gray-300">
+              <strong>Availability:</strong> {selectedDeveloper.availability}
+            </p>
+            <p className="text-gray-300 mb-4">
+              <strong>Match Score:</strong> {selectedDeveloper.matchScore}
+            </p>
+
+            <h3 className="text-lg font-semibold mb-2">Projects</h3>
+            <ul className="list-disc list-inside text-gray-300 mb-4">
+              {selectedDeveloper.projects.map((proj, idx) => (
+                <li key={idx}>
+                  <strong>{proj.title}:</strong> {proj.description}
+                </li>
+              ))}
+            </ul>
+
+            <h3 className="text-lg font-semibold mb-2">Contact</h3>
+            <div className="flex space-x-4">
+              {selectedDeveloper.contacts.email && (
+                <a
+                  href={`mailto:${selectedDeveloper.contacts.email}`}
+                  className="p-2 bg-indigo-600 rounded-lg hover:bg-indigo-700"
+                >
+                  <FiMail />
+                </a>
+              )}
+              {selectedDeveloper.contacts.github && (
+                <a
+                  href={selectedDeveloper.contacts.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 bg-gray-700 rounded-lg hover:bg-gray-600"
+                >
+                  <FiGithub />
+                </a>
+              )}
+              {selectedDeveloper.contacts.linkedin && (
+                <a
+                  href={selectedDeveloper.contacts.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 bg-blue-600 rounded-lg hover:bg-blue-700"
+                >
+                  <FiLinkedin />
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Chat Section */}
       {activeChat && (
