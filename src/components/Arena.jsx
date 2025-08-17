@@ -1,18 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactFlow from "reactflow";
 import "reactflow/dist/style.css";
 import { FaCheckCircle, FaCode, FaCogs, FaProjectDiagram, FaPuzzlePiece, FaRocket } from "react-icons/fa";
 
 // Roadmap descriptions
 const roadmapDescriptions = {
-  JavaScript:
-    "JavaScript is the language of the web. Master the basics, then move to advanced topics and frameworks.",
-  Python:
-    "Python is versatile and beginner-friendly. Great for data science, web, automation, and more.",
-  Java:
-    "Java is robust and widely used in enterprise, Android, and backend development.",
-  "C++":
-    "C++ is powerful for system programming, game development, and performance-critical applications.",
+  JavaScript: "JavaScript is the language of the web. Master the basics, then move to advanced topics and frameworks.",
+  Python: "Python is versatile and beginner-friendly. Great for data science, web, automation, and more.",
+  Java: "Java is robust and widely used in enterprise, Android, and backend development.",
+  "C++": "C++ is powerful for system programming, game development, and performance-critical applications.",
 };
 
 // Step icons
@@ -27,142 +23,48 @@ const stepIcons = [
 
 // Roadmaps
 const roadmaps = {
-  JavaScript: [
-    "Variables & Data Types",
-    "Control Structures",
-    "Functions",
-    "Objects & Arrays",
-    "ES6+ Features",
-    "DOM Manipulation",
-    "Async JS",
-  ],
-  Python: [
-    "Syntax & Variables",
-    "Data Structures",
-    "Control Flow",
-    "Functions & Modules",
-    "OOP Concepts",
-    "Popular Libraries",
-    "Web Frameworks",
-  ],
-  Java: [
-    "Syntax & Variables",
-    "Control Flow",
-    "OOP Concepts",
-    "Collections",
-    "Exception Handling",
-    "File I/O",
-    "Frameworks",
-  ],
-  "C++": [
-    "Syntax & Variables",
-    "Control Flow",
-    "Functions",
-    "Pointers & References",
-    "OOP Concepts",
-    "STL",
-    "Templates",
-  ],
+  JavaScript: ["Variables & Data Types","Control Structures","Functions","Objects & Arrays","ES6+ Features","DOM Manipulation","Async JS"],
+  Python: ["Syntax & Variables","Data Structures","Control Flow","Functions & Modules","OOP Concepts","Popular Libraries","Web Frameworks"],
+  Java: ["Syntax & Variables","Control Flow","OOP Concepts","Collections","Exception Handling","File I/O","Frameworks"],
+  "C++": ["Syntax & Variables","Control Flow","Functions","Pointers & References","OOP Concepts","STL","Templates"],
 };
 
-// Step details for each language and step
+// Step details
 const stepDetails = {
   JavaScript: [
-    {
-      title: "Variables & Data Types",
-      description: "Learn how to declare variables and use different data types in JavaScript.",
-      example: `let name = "Alice"; // string
-let age = 25; // number
-let isActive = true; // boolean`
-    },
-    {
-      title: "Control Structures",
-      description: "Use if, else, for, and while to control the flow of your program.",
-      example: `for(let i=0; i<5; i++) {
-  console.log(i);
-}`
-    },
-    {
-      title: "Functions",
-      description: "Write reusable blocks of code using functions.",
-      example: `function greet(name) {
-  return "Hello, " + name;
-}`
-    },
-    {
-      title: "Objects & Arrays",
-      description: "Store and organize data using objects and arrays.",
-      example: `const user = { name: "Alice", age: 25 };
-const numbers = [1, 2, 3, 4];`
-    },
-    {
-      title: "ES6+ Features",
-      description: "Modern JavaScript features like arrow functions, destructuring, and more.",
-      example: `const add = (a, b) => a + b;
-const { name } = user;`
-    },
-    {
-      title: "DOM Manipulation",
-      description: "Interact with the web page using the Document Object Model.",
-      example: `document.getElementById("demo").textContent = "Hello!";`
-    },
-    {
-      title: "Async JS",
-      description: "Handle asynchronous operations with callbacks, promises, and async/await.",
-      example: `fetch('/api/data')
-  .then(res => res.json())
-  .then(data => console.log(data));`
-    }
-  ],
-  // Add similar arrays for Python, Java, C++ if you want step details for them
+    { title: "Variables & Data Types", description: "Learn how to declare variables and use different data types in JavaScript.", example: `let name = "Alice";\nlet age = 25;\nlet isActive = true;` },
+    { title: "Control Structures", description: "Use if, else, for, and while to control the flow of your program.", example: `for(let i=0; i<5; i++) { console.log(i); }` },
+    { title: "Functions", description: "Write reusable blocks of code using functions.", example: `function greet(name) { return "Hello, " + name; }` },
+    { title: "Objects & Arrays", description: "Store and organize data using objects and arrays.", example: `const user = { name: "Alice", age: 25 };\nconst numbers = [1,2,3,4];` },
+    { title: "ES6+ Features", description: "Modern JS features like arrow functions, destructuring, and more.", example: `const add = (a,b) => a+b;\nconst { name } = user;` },
+    { title: "DOM Manipulation", description: "Interact with the page using the Document Object Model.", example: `document.getElementById("demo").textContent = "Hello!";` },
+    { title: "Async JS", description: "Handle async operations with callbacks, promises, and async/await.", example: `fetch('/api/data').then(res=>res.json()).then(data=>console.log(data));` }
+  ]
 };
 
-function RoadmapNode({ data, isStart, isEnd, step, selected, onClick }) {
-  const icon = stepIcons[(step - 1) % stepIcons.length];
+// Node component
+function RoadmapNode({ data }) {
   return (
-    <div
-      onClick={onClick}
-      className={`cursor-pointer rounded-xl shadow-xl px-6 py-4 text-left font-semibold transition-all duration-200 border-l-8
-        ${selected ? "ring-4 ring-indigo-400 scale-105" : ""}
-        ${isStart ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-indigo-400"
-        : isEnd ? "bg-gradient-to-r from-green-400 to-blue-500 text-white border-green-400"
+    <div className={`cursor-pointer rounded-xl p-4 flex items-center gap-4 font-semibold transition-all duration-200 border-l-8
+      ${data.isStart ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-indigo-400"
+        : data.isEnd ? "bg-gradient-to-r from-green-400 to-blue-500 text-white border-green-400"
         : "bg-gray-800 text-indigo-100 border-indigo-700 hover:scale-105 hover:bg-indigo-700"}
-      `}
-      style={{
-        minWidth: 260,
-        fontSize: 18,
-        margin: "0 auto",
-        boxShadow: "0 4px 24px 0 rgba(0,0,0,0.15)",
-        display: "flex",
-        alignItems: "center",
-        gap: 16,
-      }}
+      ${data.selected ? "ring-4 ring-indigo-400 scale-105" : ""}`}
+      onClick={data.onClick}
     >
-      <span className="text-2xl">{icon}</span>
-      <span>
-        <span className="font-bold text-indigo-200 mr-2">{step}.</span>
-        {data.label}
-      </span>
+      <span className="text-2xl">{stepIcons[(data.step - 1) % stepIcons.length]}</span>
+      <span><span className="font-bold text-indigo-200 mr-2">{data.step}.</span>{data.label}</span>
     </div>
   );
 }
 
-const nodeTypes = {
-  roadmap: RoadmapNode,
-};
+const nodeTypes = { roadmap: RoadmapNode };
 
 const getNodesAndEdges = (steps, selectedStep, setSelectedStep) => {
   const nodes = steps.map((label, idx) => ({
     id: `${idx + 1}`,
-    position: { x: (idx % 2 === 0 ? 0 : 180), y: idx * 120 },
-    data: {
-      label,
-      step: idx + 1,
-      isStart: idx === 0,
-      isEnd: idx === steps.length - 1,
-      selected: selectedStep === idx,
-      onClick: () => setSelectedStep(idx),
-    },
+    position: { x: 0, y: idx * 150 },
+    data: { label, step: idx + 1, isStart: idx === 0, isEnd: idx === steps.length - 1, selected: selectedStep === idx, onClick: () => setSelectedStep(idx) },
     type: "roadmap",
     selected: selectedStep === idx,
   }));
@@ -177,85 +79,136 @@ const getNodesAndEdges = (steps, selectedStep, setSelectedStep) => {
   return { nodes, edges };
 };
 
+const defaultProfiles = [
+  { name: "Vikas Pal", platform: "LeetCode", handle: "vikas83pal", score: 1500, problemsSolved: 300 },
+  { name: "Anita Sharma", platform: "Codeforces", handle: "anita123", score: 1800, problemsSolved: 750 },
+  { name: "Rohit Kumar", platform: "GitHub", handle: "rohitdev", score: 2800, problemsSolved: 400 },
+];
+
 const Arena = () => {
   const [selectedLang, setSelectedLang] = useState("JavaScript");
   const [search, setSearch] = useState("");
   const [selectedStep, setSelectedStep] = useState(null);
+  const [profiles, setProfiles] = useState(defaultProfiles);
+  const [selectedProfile, setSelectedProfile] = useState(null);
+  const [idea, setIdea] = useState("");
+  const [ideasList, setIdeasList] = useState([]);
 
-  const filteredLangs = Object.keys(roadmaps).filter((lang) =>
-    lang.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredLangs = Object.keys(roadmaps).filter(lang => lang.toLowerCase().includes(search.toLowerCase()));
 
-  // Reset selected step when language changes
-  React.useEffect(() => setSelectedStep(null), [selectedLang]);
+  useEffect(() => setSelectedStep(null), [selectedLang]);
+  const { nodes, edges } = getNodesAndEdges(roadmaps[selectedLang], selectedStep, setSelectedStep);
+  const stepInfo = selectedStep !== null && stepDetails[selectedLang] ? stepDetails[selectedLang][selectedStep] : null;
 
-  const { nodes, edges } = getNodesAndEdges(
-    roadmaps[selectedLang],
-    selectedStep,
-    setSelectedStep
-  );
+  const handleSubmitIdea = (e) => {
+    e.preventDefault();
+    if (!idea.trim()) {
+      alert("Please enter an idea before submitting!");
+      return;
+    }
+    setIdeasList([...ideasList, { text: idea, votes: 0 }]);
+    alert("Your idea is submitted!");
+    setIdea("");
+  };
 
-  const stepInfo =
-    selectedStep !== null && stepDetails[selectedLang]
-      ? stepDetails[selectedLang][selectedStep]
-      : null;
+  const handleVote = (index) => {
+    const updatedIdeas = ideasList.map((item, idx) => idx === index ? { ...item, votes: item.votes + 1 } : item);
+    setIdeasList(updatedIdeas);
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
-      <div className="pt-16 max-w-4xl mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-center mb-4">
-          Programming Roadmap <span className="text-indigo-400">(Flowchart)</span>
-        </h1>
-        <div className="text-center mb-8 text-indigo-200 text-lg">
-          {roadmapDescriptions[selectedLang]}
-        </div>
-        <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
-          <input
-            type="text"
-            placeholder="Search language..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-            style={{ minWidth: 180 }}
-          />
-          <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
-            {filteredLangs.map((lang) => (
-              <button
-                key={lang}
-                onClick={() => setSelectedLang(lang)}
-                className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 shadow ${
-                  selectedLang === lang
-                    ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white scale-105"
-                    : "bg-gray-700 hover:bg-indigo-400 hover:text-white text-gray-200"
-                }`}
-              >
-                {lang}
-              </button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white pt-16">
+      <div className="max-w-6xl mx-auto px-4 space-y-12">
+
+        {/* Roadmap Section */}
+        <section>
+          <h1 className="text-4xl font-bold text-center mb-4">Programming Roadmap <span className="text-indigo-400">(Flowchart)</span></h1>
+          <p className="text-center mb-6 text-indigo-200">{roadmapDescriptions[selectedLang]}</p>
+
+          <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
+            <input type="text" placeholder="Search language..." value={search} onChange={e => setSearch(e.target.value)}
+              className="px-3 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              style={{ minWidth: 180 }}
+            />
+            <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
+              {filteredLangs.map(lang => (
+                <button key={lang} onClick={() => setSelectedLang(lang)}
+                  className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 shadow
+                    ${selectedLang === lang
+                      ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white scale-105"
+                      : "bg-gray-700 hover:bg-indigo-400 hover:text-white text-gray-200"}`}>
+                  {lang}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ height: 500, borderRadius: 12, padding: 8 }}>
+            <ReactFlow nodes={nodes} edges={edges} fitView panOnDrag zoomOnScroll zoomOnPinch nodeTypes={nodeTypes} style={{ background: "transparent" }} />
+          </div>
+
+          {stepInfo && (
+            <div className="mt-8 bg-gray-800 rounded-xl p-6 shadow-lg border-l-4 border-indigo-400">
+              <h2 className="text-2xl font-bold mb-2 text-indigo-300">{stepInfo.title}</h2>
+              <p className="mb-4 text-gray-200">{stepInfo.description}</p>
+              <pre className="bg-gray-900 rounded p-4 text-green-300 overflow-x-auto">{stepInfo.example}</pre>
+            </div>
+          )}
+        </section>
+
+        {/* Coding Profiles Section */}
+        <section>
+          <h2 className="text-3xl font-bold mb-4 text-indigo-400">Coding Profiles</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {profiles.map((profile, idx) => (
+              <div key={idx} onClick={() => setSelectedProfile(profile)} className="cursor-pointer bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-xl transition flex flex-col justify-between">
+                <h3 className="text-xl font-bold mb-1">{profile.name}</h3>
+                <p className="text-gray-400 mb-1">{profile.platform}</p>
+                <p className="text-gray-200 font-semibold mb-2">Handle: {profile.handle}</p>
+                <p className="text-green-400 font-bold">Score: {profile.score}</p>
+              </div>
             ))}
           </div>
-        </div>
-        <div style={{ height: 700, background: "#23272f", borderRadius: 12, padding: 8 }}>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            fitView
-            panOnDrag
-            zoomOnScroll
-            zoomOnPinch
-            nodeTypes={nodeTypes}
-            defaultViewport={{ x: 120, y: 0, zoom: 1 }}
-          />
-        </div>
-        {stepInfo && (
-          <div className="mt-8 bg-gray-800 rounded-xl p-6 shadow-lg border-l-4 border-indigo-400">
-            <h2 className="text-2xl font-bold mb-2 text-indigo-300">{stepInfo.title}</h2>
-            <p className="mb-4 text-gray-200">{stepInfo.description}</p>
-            <pre className="bg-gray-900 rounded p-4 text-green-300 overflow-x-auto">
-              {stepInfo.example}
-            </pre>
+        </section>
+
+        {/* Hackathon Ideas Section */}
+        <section>
+          <h2 className="text-3xl font-bold mb-4 text-indigo-400">Hackathon Ideas</h2>
+          <form onSubmit={handleSubmitIdea} className="flex flex-col md:flex-row gap-4 mb-6">
+            <input type="text" placeholder="Enter your idea" value={idea} onChange={(e) => setIdea(e.target.value)}
+              className="flex-1 p-3 border border-gray-700 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            />
+            <button type="submit" className="px-6 py-3 bg-indigo-500 rounded-lg hover:bg-indigo-600 transition">
+              Submit Idea
+            </button>
+          </form>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {ideasList.map((item, idx) => (
+              <div key={idx} className="bg-gray-800 p-4 rounded-xl shadow-md flex justify-between items-center">
+                <p className="flex-1">{item.text}</p>
+                <button onClick={() => handleVote(idx)} className="ml-4 bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition-colors">
+                  Vote ({item.votes})
+                </button>
+              </div>
+            ))}
           </div>
-        )}
+        </section>
+
       </div>
+
+      {/* Profile Modal */}
+      {selectedProfile && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-8 rounded-xl shadow-2xl max-w-md w-full relative">
+            <button onClick={() => setSelectedProfile(null)} className="absolute top-4 right-4 text-white font-bold text-xl">&times;</button>
+            <h2 className="text-2xl font-bold mb-2 text-indigo-400">{selectedProfile.name}</h2>
+            <p className="text-gray-300 mb-1">Platform: {selectedProfile.platform}</p>
+            <p className="text-gray-300 mb-1">Handle: {selectedProfile.handle}</p>
+            <p className="text-green-400 font-semibold">Score: {selectedProfile.score}</p>
+            <p className="text-indigo-200 mt-2">Problems Solved: {selectedProfile.problemsSolved}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
