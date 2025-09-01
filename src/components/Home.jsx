@@ -39,7 +39,7 @@ const Home = () => {
     setIsBetaClicked(true);
     setTimeout(() => {
       window.open(
-        "https://docs.google.com/forms/d/e/1FAIpQLSdEyUCm4fkTCSEjliYdj1_QEQg93sKXZdzJBtqs31tRMV2dHA/viewform?usp=header",
+        "https://forms.office.com/r/VHbTwYRwa6",
         "_blank",
         "noopener,noreferrer"
       );
