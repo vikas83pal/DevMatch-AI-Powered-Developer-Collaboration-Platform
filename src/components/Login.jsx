@@ -6,7 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+const Login = ({ setLoggedIn, setInitials }) => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,34 +21,19 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const res = await fetch("http://localhost:5000/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        console.log("Login success:", data);
-        toast.success("Login successful!", { position: "top-center", autoClose: 1000 });
-
-        setTimeout(() => {
-          navigate("/projects"); // Redirect to projects page
-        }, 1000);
-      } else {
-        const errorMsg = await res.text();
-        console.error("Login failed:", errorMsg);
-        toast.error("Login failed: " + errorMsg, { position: "top-center", autoClose: 3000 });
-      }
-    } catch (error) {
-      console.error("Unexpected error:", error);
-      toast.error("An unexpected error occurred.", { position: "top-center", autoClose: 3000 });
-    }
+    localStorage.setItem('email', email);
+    localStorage.setItem('password', password);
+    const firstTwo = email.slice(0, 2).toUpperCase();
+    setInitials(firstTwo);
+    setLoggedIn(true);
+    toast.success("Login successful!", { position: "top-center", autoClose: 1000 });
+    setTimeout(() => {
+      navigate("/");
+    }, 1000);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pt-24 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pt-24 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center relative">
       <div className="w-full max-w-md">
         <div className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10">
           <div className="text-center mb-8">

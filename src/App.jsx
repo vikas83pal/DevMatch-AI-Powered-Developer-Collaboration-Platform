@@ -1,6 +1,6 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import NavBar from "./components/NavBar";
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import NavBar from "./components/Navbar";
 import Project from "./components/ProjectsList";
 import Home from "./components/Home";
 import Match from "./components/Match";
@@ -11,27 +11,47 @@ import Signup from "./components/Signup";
 import ForgotPassword from "./components/ForgotPassword";
 import Arena from "./components/Arena";
 import ProjectDetails from "./components/ProjectDetails";
-// import ToggleButton from "./components/ToggleButton";
 
 function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [initials, setInitials] = useState("");
+
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("email");
+    if (storedEmail) {
+      setLoggedIn(true);
+      setInitials(storedEmail.slice(0, 2).toUpperCase());
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("email");
+    localStorage.removeItem("password");
+    setLoggedIn(false);
+    setInitials("");
+  };
+
   return (
     <Router>
-      {/* ✅ Toggle Button before Navbar
-      <div className="flex justify-end">
-        <ToggleButton />
-      </div> */}
-
-      <NavBar />
+      <NavBar loggedIn={loggedIn} initials={initials} handleLogout={handleLogout} />
 
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
+        <Route
+          path="/login"
+          element={
+            <Login
+              setLoggedIn={setLoggedIn}
+              setInitials={setInitials}
+            />
+          }
+        />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot" element={<ForgotPassword />} />
         <Route path="/contact" element={<Contact />} />
 
         {/* Other Routes */}
+        <Route path="/" element={<Home />} />
         <Route path="/projects" element={<Project />} />
         <Route path="/projects/:projectId" element={<ProjectDetails />} />
         <Route path="/match" element={<Match />} />

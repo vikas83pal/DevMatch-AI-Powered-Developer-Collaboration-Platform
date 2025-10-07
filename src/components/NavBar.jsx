@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiCode, FiUsers, FiMessageSquare, FiGitBranch, FiAward, FiLogIn } from 'react-icons/fi';
+import { FiCode, FiUsers, FiMessageSquare, FiGitBranch, FiAward, FiLogIn, FiLogOut } from 'react-icons/fi';
 
-const NavBar = () => {
+const NavBar = ({ loggedIn, initials, handleLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -61,9 +61,23 @@ const NavBar = () => {
               <Link to="/contact" className="text-white hover:text-indigo-300 px-3 py-2 text-sm font-medium flex items-center transition">
                 <FiMessageSquare className="mr-2" /> Contact
               </Link>
-              <Link to="/login" className="ml-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition flex items-center">
-                <FiLogIn className="mr-2" /> Login
-              </Link>
+              {loggedIn ? (
+                <>
+                  <div className="ml-4 bg-indigo-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-md font-bold shadow">
+                    {initials}
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="ml-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition flex items-center"
+                  >
+                    <FiLogOut className="mr-2" /> Logout
+                  </button>
+                </>
+              ) : (
+                <Link to="/login" className="ml-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition flex items-center">
+                  <FiLogIn className="mr-2" /> Login
+                </Link>
+              )}
             </div>
           </div>
 
@@ -92,7 +106,23 @@ const NavBar = () => {
           <Link to="/match" className="block text-white hover:text-indigo-300 text-sm font-medium" onClick={toggleMenu}>Match</Link>
           <Link to="/arena" className="block text-white hover:text-indigo-300 text-sm font-medium" onClick={toggleMenu}>Arena</Link>
           <Link to="/contact" className="block text-white hover:text-indigo-300 text-sm font-medium" onClick={toggleMenu}>Contact</Link>
-          <Link to="/login" className="block text-white hover:text-indigo-300 text-sm font-medium" onClick={toggleMenu}>Login</Link>
+          {loggedIn ? (
+            <>
+              <div className="bg-indigo-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-md font-bold shadow mb-2">
+                {initials}
+              </div>
+              <button
+                onClick={() => { handleLogout(); toggleMenu(); }}
+                className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition flex items-center justify-center"
+              >
+                <FiLogOut className="mr-2" /> Logout
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="block px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition flex items-center justify-center" onClick={toggleMenu}>
+              <FiLogIn className="mr-2" /> Login
+            </Link>
+          )}
         </div>
       )}
     </nav>
