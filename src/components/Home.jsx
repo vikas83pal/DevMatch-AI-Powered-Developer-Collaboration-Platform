@@ -9,6 +9,10 @@ import {
   FiZap,
   FiMenu,
   FiX,
+  FiTrendingUp,
+  FiAward,
+  FiShield,
+  FiArrowRight,
 } from "react-icons/fi";
 
 const Home = () => {
@@ -152,14 +156,30 @@ const Home = () => {
             Collaborate in real-time, build faster, and create amazing projects
             together.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
             <Link to="/match"
-            className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition duration-300 flex items-center justify-center">
-              <FiCode className="mr-2" /> Start Matching
+            className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition duration-300 flex items-center justify-center gap-2">
+              <FiCode className="w-5 h-5" /> Start Matching
             </Link>
-            <a href="#how-works" className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg backdrop-blur-sm transition duration-300">
-              See How It Works
+            <a href="#how-works" className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg backdrop-blur-sm transition duration-300 flex items-center justify-center gap-2">
+              Learn More <FiArrowRight className="w-4 h-4" />
             </a>
+          </div>
+
+          {/* Stats Section */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 max-w-3xl mx-auto">
+            <div className="bg-white/5 backdrop-blur-sm p-6 rounded-lg border border-white/10">
+              <div className="text-3xl font-bold text-indigo-400 mb-2">10K+</div>
+              <p className="text-gray-300">Active Developers</p>
+            </div>
+            <div className="bg-white/5 backdrop-blur-sm p-6 rounded-lg border border-white/10">
+              <div className="text-3xl font-bold text-purple-400 mb-2">95%</div>
+              <p className="text-gray-300">Match Accuracy</p>
+            </div>
+            <div className="bg-white/5 backdrop-blur-sm p-6 rounded-lg border border-white/10">
+              <div className="text-3xl font-bold text-pink-400 mb-2">5K+</div>
+              <p className="text-gray-300">Projects Completed</p>
+            </div>
           </div>
         </div>
 
@@ -169,47 +189,61 @@ const Home = () => {
       {/* How It Works Section */}
       <section id="how-works" className="py-20 px-4 sm:px-6 lg:px-8 bg-white/5 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-white mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-4">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
               How DevMatch Works
             </span>
           </h2>
+          <p className="text-center text-gray-300 mb-16 max-w-2xl mx-auto">
+            Our intelligent platform uses advanced algorithms to match developers based on skills, experience, preferences, and project requirements.
+          </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
                 title: "AI Matchmaking",
                 description:
-                  "Our algorithm analyzes skills, experience, and project needs to find your perfect teammates",
+                  "Our advanced algorithm analyzes technical skills, experience level, coding style, and project preferences to find your perfect teammates with 95% accuracy.",
                 icon: <FiCpu className="text-indigo-400 text-3xl" />,
                 color: "from-indigo-500/20 to-indigo-600/20",
+                details: ["Skill compatibility", "Experience matching", "Timezone alignment", "Work style preference"]
               },
               {
-                title: "Real-Time Chat",
+                title: "Real-Time Collaboration",
                 description:
-                  "Integrated messaging with code snippets and project sharing to start collaborating immediately",
+                  "Stay connected with integrated messaging, video calls, and code sharing. Discuss ideas instantly and make decisions faster with your matched team.",
                 icon: <FiMessageSquare className="text-purple-400 text-3xl" />,
                 color: "from-purple-500/20 to-purple-600/20",
+                details: ["Live chat", "Video meetings", "Code snippets", "Screen sharing"]
               },
               {
-                title: "Project Collaboration",
+                title: "Project Management",
                 description:
-                  "Shared workspaces with Git integration, task management, and live coding",
+                  "Manage projects collaboratively with Git integration, task tracking, sprint planning, and real-time progress monitoring all in one place.",
                 icon: <FiUsers className="text-pink-400 text-3xl" />,
                 color: "from-pink-500/20 to-pink-600/20",
+                details: ["Task board", "Git integration", "Sprint planning", "Progress tracking"]
               },
             ].map((feature, index) => (
               <div
                 key={index}
-                className={`p-6 rounded-xl backdrop-blur-md border border-white/10 hover:border-white/20 transition duration-300 bg-gradient-to-br ${feature.color}`}
+                className={`p-8 rounded-xl backdrop-blur-md border border-white/10 hover:border-white/30 transition duration-300 bg-gradient-to-br ${feature.color} group hover:shadow-lg hover:shadow-indigo-500/10`}
               >
-                <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-white/10 mb-4">
+                <div className="w-14 h-14 flex items-center justify-center rounded-lg bg-white/10 mb-6 group-hover:bg-white/20 transition">
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">
+                <h3 className="text-xl font-semibold text-white mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-gray-300">{feature.description}</p>
+                <p className="text-gray-300 mb-5">{feature.description}</p>
+                <ul className="space-y-2">
+                  {feature.details.map((detail, i) => (
+                    <li key={i} className="text-sm text-gray-400 flex items-center">
+                      <span className="w-2 h-2 rounded-full bg-indigo-400 mr-2"></span>
+                      {detail}
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
@@ -219,9 +253,12 @@ const Home = () => {
       {/* Developer Profiles Showcase */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-white mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-4">
             Meet Your Next <span className="text-indigo-300">Teammates</span>
           </h2>
+          <p className="text-center text-gray-300 mb-16 max-w-2xl mx-auto">
+            Discover talented developers with complementary skills ready to build amazing projects.
+          </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
@@ -252,10 +289,10 @@ const Home = () => {
             ].map((dev, index) => (
               <div
                 key={index}
-                className="p-6 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 hover:border-indigo-400/50 transition duration-300 group"
+                className="p-6 bg-gradient-to-br from-white/5 to-white/10 rounded-xl backdrop-blur-sm border border-white/10 hover:border-indigo-400/50 transition duration-300 group hover:shadow-lg hover:shadow-indigo-500/10"
               >
                 <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center text-white font-bold mr-4">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500/40 to-purple-500/40 flex items-center justify-center text-white font-bold mr-4 text-lg group-hover:scale-110 transition">
                     {dev.name.charAt(0)}
                   </div>
                   <div>
@@ -269,7 +306,7 @@ const Home = () => {
                   {dev.skills.map((skill, i) => (
                     <span
                       key={i}
-                      className="inline-block bg-indigo-900/30 text-indigo-300 text-xs px-2 py-1 rounded mr-2 mb-2"
+                      className="inline-block bg-indigo-900/40 text-indigo-200 text-xs px-3 py-1 rounded-full mr-2 mb-2 border border-indigo-700/30"
                     >
                       {skill}
                     </span>
@@ -277,7 +314,60 @@ const Home = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-400">Match score</span>
-                  <span className="text-white font-bold">{dev.match}</span>
+                  <span className="text-white font-bold text-lg">{dev.match}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Link to="/match" className="inline-flex items-center gap-2 px-8 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition">
+              View All Developers <FiArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose DevMatch */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-indigo-900/20 to-purple-900/20">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-16">
+            Why Choose DevMatch?
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {[
+              {
+                icon: <FiAward className="w-8 h-8 text-yellow-400" />,
+                title: "Verified Profiles",
+                description: "All developers are verified for skills and experience through our rigorous vetting process."
+              },
+              {
+                icon: <FiShield className="w-8 h-8 text-green-400" />,
+                title: "Secure Collaboration",
+                description: "End-to-end encrypted messaging and secure project repositories keep your work private."
+              },
+              {
+                icon: <FiTrendingUp className="w-8 h-8 text-blue-400" />,
+                title: "Success Stories",
+                description: "Join thousands of successful projects launched by teams matched on DevMatch."
+              },
+              {
+                icon: <FiZap className="w-8 h-8 text-orange-400" />,
+                title: "Quick Onboarding",
+                description: "Start collaborating within minutes. Our platform is designed for immediate productivity."
+              },
+            ].map((benefit, index) => (
+              <div
+                key={index}
+                className="flex gap-6 p-6 bg-white/5 rounded-lg border border-white/10 hover:border-white/20 transition"
+              >
+                <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-lg bg-white/10">
+                  {benefit.icon}
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-2">{benefit.title}</h3>
+                  <p className="text-gray-300">{benefit.description}</p>
                 </div>
               </div>
             ))}
@@ -286,62 +376,39 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl mx-auto text-center bg-gradient-to-r from-indigo-500/20 to-purple-500/20 p-8 rounded-2xl backdrop-blur-md border border-indigo-400/20">
-          <h2 className="text-3xl font-bold text-white mb-6">
-            Ready to Find Your Dream Team?
-          </h2>
-          <p className="text-xl text-gray-300 mb-8">
-            Join thousands of developers already building amazing projects
-            together on DevMatch.
-          </p>
-          <Link
-            to="/signup"
-            className="w-full max-w-xs px-6 py-3 bg-white text-indigo-900 hover:bg-gray-100 font-bold rounded-lg transition duration-300 flex items-center justify-center mx-auto"
-          >
-            <FiUsers className="mr-2" /> Sign Up Free
-          </Link>
+      <section className="py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-gradient-to-br from-indigo-600/30 to-purple-600/30 p-8 md:p-12 rounded-2xl backdrop-blur-md border border-indigo-400/30 hover:border-indigo-400/60 transition">
+            <div className="text-center">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Ready to Find Your Perfect Development Team?
+              </h2>
+              <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
+                Join thousands of developers building innovative projects together. Get matched with developers who complement your skills and share your vision.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  to="/signup"
+                  className="px-8 py-4 bg-white text-indigo-900 hover:bg-gray-100 font-bold rounded-lg transition duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                >
+                  <FiUsers className="w-5 h-5" /> Get Started Free
+                </Link>
+                <Link
+                  to="/match"
+                  className="px-8 py-4 bg-indigo-600/50 hover:bg-indigo-600 text-white font-bold rounded-lg transition duration-300 flex items-center justify-center gap-2 border border-indigo-400"
+                >
+                  <FiCode className="w-5 h-5" /> Explore Developers
+                </Link>
+              </div>
+
+              <p className="text-gray-400 text-sm mt-8">
+                No credit card required • Free forever plan available • Join in seconds
+              </p>
+            </div>
+          </div>
         </div>
       </section>
-
-      {/* Footer */}
-      {/* <footer className="bg-black/30 backdrop-blur-md py-8 px-4 sm:px-6 lg:px-8 border-t border-gray-800">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <h3 className="text-white text-lg font-semibold mb-4">DevMatch</h3>
-            <p className="text-gray-400 text-sm">
-              AI-powered developer matchmaking for perfect project teams.
-            </p>
-          </div>  
-          <div>
-            <h4 className="text-white font-medium mb-4">Product</h4>
-            <ul className="space-y-2">
-              <li><a href="#" className="text-gray-400 hover:text-white transition text-sm">Features</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition text-sm">Pricing</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition text-sm">API</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-white font-medium mb-4">Resources</h4>
-            <ul className="space-y-2">
-              <li><a href="#" className="text-gray-400 hover:text-white transition text-sm">Documentation</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition text-sm">Blog</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition text-sm">Community</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-white font-medium mb-4">Company</h4>
-            <ul className="space-y-2">
-              <li><a href="#" className="text-gray-400 hover:text-white transition text-sm">About</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition text-sm">Careers</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition text-sm">Contact</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto pt-8 mt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
-          © {new Date().getFullYear()} DevMatch. All rights reserved.
-        </div>
-      </footer> */}
     </div>
   );
 };
