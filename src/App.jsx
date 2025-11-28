@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import NavBar from "./components/Navbar";
+import NavBar from "./components/NavBar";
 import Project from "./components/ProjectsList";
 import Home from "./components/Home";
 import Match from "./components/Match";
