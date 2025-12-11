@@ -1,18 +1,63 @@
-html {
-  scroll-behavior: smooth;
+/* App Level Styles */
+
+/* Ensure proper responsive behavior */
+@media (min-width: 640px) {
+  .hidden.sm\:block {
+    display: block !important;
+  }
+  .hidden.sm\:flex {
+    display: flex !important;
+  }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
+@media (min-width: 768px) {
+  .hidden.md\:block {
+    display: block !important;
   }
-  to {
+  .hidden.md\:flex {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hidden.lg\:block {
+    display: block !important;
+  }
+  .hidden.lg\:flex {
+    display: flex !important;
+  }
+  .lg\:hidden {
+    display: none !important;
+  }
+}
+
+/* Pulse Animation */
+@keyframes pulse {
+  0%, 100% {
     opacity: 1;
-    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.5;
   }
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.5s ease-out;
+/* Link Hover States */
+a:hover {
+  text-decoration: none;
+}
+
+/* Button Active States */
+button:active {
+  transform: scale(0.98);
+}
+
+/* Selection Color */
+::selection {
+  background: rgba(99, 102, 241, 0.3);
+  color: white;
+}
+
+/* Toast Customization */
+.Toastify__toast-container {
+  z-index: 9999 !important;
 }

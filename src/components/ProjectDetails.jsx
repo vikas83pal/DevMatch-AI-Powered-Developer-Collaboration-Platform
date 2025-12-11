@@ -1,332 +1,309 @@
-import React from "react";
-import { useParams } from "react-router-dom";
+import React, { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  FiArrowLeft,
+  FiUsers,
+  FiCalendar,
+  FiGitBranch,
+  FiStar,
+  FiMessageCircle,
+  FiExternalLink,
+  FiCheck,
+  FiClock,
+  FiMapPin,
+} from "react-icons/fi";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const projectData = {
-1: {
-    title: "E-commerce Platform",
-    description: "Full-stack online store with React and Node.js",
-    skills: ["React", "Node.js", "MongoDB"],
-    members: 3,
-    status: "active",
-    details: `
-      This project is a full-fledged e-commerce solution with product catalog, 
-      cart, payments, and admin dashboard. Technologies include React, Node.js, and MongoDB.
-    `,
+  1: {
+    title: "AI Chatbot Platform",
+    description: "Building an AI-powered chatbot for customer service with natural language processing.",
+    fullDescription: `This project aims to create a comprehensive AI-powered chatbot platform that can handle customer service inquiries across multiple channels. The system uses advanced NLP techniques and machine learning to understand and respond to user queries in a natural, conversational manner.
+
+Key features include:
+- Multi-language support
+- Context-aware conversations
+- Integration with popular messaging platforms
+- Analytics dashboard for conversation insights
+- Custom training capabilities`,
+    skills: ["Python", "TensorFlow", "NLP", "React", "Node.js"],
+    members: [
+      { name: "Alice Johnson", role: "Project Lead", avatar: "AJ" },
+      { name: "Bob Smith", role: "ML Engineer", avatar: "BS" },
+      { name: "Carol Davis", role: "Frontend Dev", avatar: "CD" },
+    ],
+    openRoles: ["Backend Developer", "DevOps Engineer"],
+    status: "recruiting",
+    createdAt: "2024-01-10",
+    stars: 156,
   },
   2: {
-    title: "Portfolio Builder",
-    description: "AI-powered portfolio generator for developers",
-    skills: ["Next.js", "Tailwind", "OpenAI API"],
-    members: 2,
-    status: "recruiting",
-    details: `
-      An AI-based platform that helps developers create professional portfolios in minutes. 
-      Uses Next.js, Tailwind, and OpenAI API integration.
-    `,
+    title: "E-Commerce Dashboard",
+    description: "Full-stack e-commerce platform with real-time analytics and inventory management.",
+    fullDescription: `A modern e-commerce dashboard that provides merchants with powerful tools to manage their online stores. Built with React and Node.js, featuring real-time updates and comprehensive analytics.
+
+Key features include:
+- Real-time sales analytics
+- Inventory management system
+- Order tracking and fulfillment
+- Customer relationship management
+- Multi-vendor support`,
+    skills: ["React", "Node.js", "MongoDB", "Redis", "GraphQL"],
+    members: [
+      { name: "David Lee", role: "Full Stack Dev", avatar: "DL" },
+      { name: "Emma Wilson", role: "UI/UX Designer", avatar: "EW" },
+    ],
+    openRoles: ["Frontend Developer"],
+    status: "active",
+    createdAt: "2024-01-15",
+    stars: 89,
   },
   3: {
-    title: "Chat App",
-    description: "Real-time chat app with WebSockets",
-    skills: ["React", "Socket.io", "Firebase"],
-    members: 4,
-    status: "active",
-    details: `
-      A cross-platform real-time chat application supporting group chats, media sharing, 
-      and online presence indicators. Built with React, Socket.io, and Firebase.
-    `,
-  },
-  4: {
-    title: "Brain Tumor Detection",
-    description: "Medical imaging project using Deep Learning",
-    skills: ["Python", "TensorFlow", "Deep Learning"],
-    members: 5,
+    title: "Mobile Fitness App",
+    description: "Cross-platform fitness tracking app with workout plans and social features.",
+    fullDescription: `A comprehensive mobile fitness application that helps users track their workouts, set goals, and connect with other fitness enthusiasts.
+
+Key features include:
+- Personalized workout plans
+- Progress tracking with charts
+- Social feed and challenges
+- Integration with wearables
+- Nutrition tracking`,
+    skills: ["React Native", "Firebase", "TypeScript"],
+    members: [
+      { name: "Frank Garcia", role: "Mobile Developer", avatar: "FG" },
+    ],
+    openRoles: ["Backend Developer", "UI Designer"],
     status: "recruiting",
-    details: `
-      This project applies Convolutional Neural Networks (CNNs) for detecting brain tumors 
-      in MRI scans. Trained with TensorFlow/Keras, evaluated with accuracy and recall metrics.
-    `,
-  },
-  5: {
-    title: "Stock Price Predictor",
-    description: "Predict stock prices with ML models",
-    skills: ["Python", "LSTM", "Pandas"],
-    members: 3,
-    status: "active",
-    details: `
-      Time-series forecasting using LSTMs and ARIMA models to predict stock market trends 
-      with visualization dashboards built in React.
-    `,
-  },
-  6: {
-    title: "Fake News Detection",
-    description: "ML model to detect fake news articles",
-    skills: ["Python", "BERT", "NLP"],
-    members: 3,
-    status: "active",
-    details: `
-      Uses NLP techniques and transformer models (BERT) to classify news as real or fake. 
-      Includes dataset preprocessing, feature extraction, and model deployment via Flask.
-    `,
-  },
-  7: {
-    title: "AI Resume Screener",
-    description: "HR automation using AI",
-    skills: ["Python", "spaCy", "React"],
-    members: 4,
-    status: "recruiting",
-    details: `
-      Automates resume shortlisting with NLP and keyword extraction. Built with Python, spaCy, 
-      and integrated with a web dashboard.
-    `,
-  },
-  8: {
-    title: "Blockchain Voting System",
-    description: "Secure decentralized voting platform",
-    skills: ["Solidity", "Ethereum", "React"],
-    members: 5,
-    status: "active",
-    details: `
-      Implements blockchain smart contracts on Ethereum to create a tamper-proof voting system. 
-      Includes wallet authentication and results dashboard.
-    `,
-  },
-  9: {
-    title: "IoT Smart Home System",
-    description: "IoT-based home automation",
-    skills: ["Arduino", "Raspberry Pi", "MQTT"],
-    members: 6,
-    status: "active",
-    details: `
-      Controls lighting, appliances, and security cameras using IoT devices. Integrates with mobile 
-      app and cloud storage for automation.
-    `,
-  },
-  10: {
-    title: "Autonomous Drone Navigation",
-    description: "AI-powered drone path planning",
-    skills: ["Python", "OpenCV", "Reinforcement Learning"],
-    members: 4,
-    status: "recruiting",
-    details: `
-      Uses computer vision and reinforcement learning for obstacle avoidance in drones. Built with ROS 
-      and OpenCV.
-    `,
-  },
-  11: {
-    title: "Sentiment Analysis Dashboard",
-    description: "Social media sentiment tracker",
-    skills: ["Python", "NLP", "Plotly"],
-    members: 3,
-    status: "active",
-    details: `
-      Analyzes Twitter data with NLP to monitor public sentiment about brands and events. Built with 
-      Python and Plotly Dash.
-    `,
-  },
-  12: {
-    title: "AI Code Reviewer",
-    description: "Automated code quality analysis",
-    skills: ["OpenAI API", "Node.js", "GitHub Actions"],
-    members: 3,
-    status: "recruiting",
-    details: `
-      Uses GPT models to analyze code quality, suggest improvements, and detect vulnerabilities. 
-      Integrated with GitHub Actions.
-    `,
-  },
-  13: {
-    title: "Smart Traffic Management",
-    description: "AI-based traffic optimization",
-    skills: ["Python", "OpenCV", "TensorFlow"],
-    members: 5,
-    status: "active",
-    details: `
-      Processes live traffic feeds to optimize signal timings and reduce congestion using 
-      ML-based prediction.
-    `,
-  },
-  14: {
-    title: "Cybersecurity Intrusion Detection",
-    description: "AI-powered IDS system",
-    skills: ["Python", "Scikit-learn", "TensorFlow"],
-    members: 4,
-    status: "active",
-    details: `
-      Detects abnormal network patterns with deep learning anomaly detection models, trained on NSL-KDD dataset.
-    `,
-  },
-  15: {
-    title: "AI Music Generator",
-    description: "Deep Learning music composer",
-    skills: ["Python", "TensorFlow", "Flask"],
-    members: 2,
-    status: "recruiting",
-    details: `
-      Generates new melodies using LSTMs trained on MIDI datasets. Deployed with a web interface for 
-      users to generate songs.
-    `,
-  },
-  16: {
-    title: "Healthcare Chatbot",
-    description: "AI-powered medical assistant",
-    skills: ["Dialogflow", "React", "Firebase"],
-    members: 5,
-    status: "active",
-    details: `
-      Provides basic health advice, symptom checking, and appointment booking using NLP models 
-      integrated with Dialogflow.
-    `,
-  },
-  17: {
-    title: "Augmented Reality Furniture App",
-    description: "AR-based shopping experience",
-    skills: ["React Native", "ARKit", "Three.js"],
-    members: 3,
-    status: "active",
-    details: `
-      Allows users to visualize furniture in their rooms using ARKit/ARCore with a React Native frontend.
-    `,
-  },
-  18: {
-    title: "AI-Powered Fraud Detection",
-    description: "Banking fraud prevention system",
-    skills: ["Python", "PyTorch", "Big Data"],
-    members: 4,
-    status: "active",
-    details: `
-      Analyzes transactions in real time with anomaly detection ML models to flag fraudulent activity.
-    `,
-  },
-  19: {
-    title: "Voice Recognition Assistant",
-    description: "Speech-to-text AI assistant",
-    skills: ["Python", "DeepSpeech", "NLP"],
-    members: 3,
-    status: "recruiting",
-    details: `
-      Implements voice-controlled assistant with DeepSpeech and NLP integration for task automation.
-    `,
-  },
-  20: {
-    title: "Cloud File Sharing Platform",
-    description: "Decentralized cloud storage",
-    skills: ["IPFS", "React", "Node.js"],
-    members: 5,
-    status: "active",
-    details: `
-      Implements peer-to-peer file storage using IPFS with user authentication and encryption.
-    `,
-  },
-  21: {
-    title: "AI-Powered Interview Platform",
-    description: "Mock interviews with AI feedback",
-    skills: ["React", "OpenAI API", "Node.js"],
-    members: 3,
-    status: "active",
-    details: `
-      Conducts mock interviews and provides AI-driven analysis on communication, coding, and problem-solving.
-    `,
-  },
-  22: {
-    title: "Self-Driving Car Simulation",
-    description: "Reinforcement Learning in action",
-    skills: ["Unity", "C#", "Reinforcement Learning"],
-    members: 6,
-    status: "recruiting",
-    details: `
-      Simulates autonomous driving in Unity with deep reinforcement learning for path planning 
-      and decision-making.
-    `,
-  },
-  23: {
-    title: "AI Fashion Recommender",
-    description: "Personalized clothing suggestions",
-    skills: ["Python", "TensorFlow", "React"],
-    members: 4,
-    status: "active",
-    details: `
-      Uses CNNs and collaborative filtering to suggest clothing items based on user style preferences.
-    `,
-  },
-  24: {
-    title: "Online Code Collaboration Tool",
-    description: "Real-time collaborative IDE",
-    skills: ["React", "Node.js", "WebRTC"],
-    members: 5,
-    status: "active",
-    details: `
-      Implements a cloud-based collaborative coding platform with real-time editing, compiling, 
-      and debugging features.
-    `,
-  },
-  25: {
-    title: "AI-Powered Video Summarizer",
-    description: "Condenses long videos into highlights",
-    skills: ["Python", "OpenCV", "Transformers"],
-    members: 3,
-    status: "recruiting",
-    details: `
-      Extracts key frames and generates summaries from long videos using CNN + NLP models.
-    `,
-  },
-  26: {
-    title: "IoT Smart Agriculture",
-    description: "Precision farming with IoT sensors",
-    skills: ["IoT", "Python", "Cloud"],
-    members: 6,
-    status: "active",
-    details: `
-      Uses soil sensors, weather APIs, and ML predictions for irrigation and crop yield optimization.
-    `,
-  },
-  27: {
-    title: "AI Cybersecurity Assistant",
-    description: "Threat detection & response AI",
-    skills: ["Python", "ELK Stack", "ML"],
-    members: 5,
-    status: "active",
-    details: `
-      Analyzes logs and alerts for cyberattacks, providing AI-driven insights to SOC teams.
-    `,
+    createdAt: "2024-02-01",
+    stars: 234,
   },
 };
 
-
 const ProjectDetails = () => {
   const { projectId } = useParams();
+  const navigate = useNavigate();
+  const [isApplying, setIsApplying] = useState(false);
+
   const project = projectData[projectId];
 
-  if (!project) {
-    return <div className="text-center text-gray-400">Project not found.</div>;
-  }
+  const handleApply = (role) => {
+    setIsApplying(true);
+    setTimeout(() => {
+      toast.success(`Applied for ${role} position!`, { position: 'top-center' });
+      setIsApplying(false);
+    }, 1000);
+  };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pt-24 pb-6 px-6">
-      <div className="max-w-4xl mx-auto bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10">
-        <h1 className="text-3xl font-bold text-white mb-4">{project.title}</h1>
-        <p className="text-gray-300 mb-4">{project.description}</p>
-        <p className="text-gray-400">Status: {project.status}</p>
-        <p className="text-gray-400">Members: {project.members}</p>
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold text-white mb-2">Skills:</h3>
-          <div className="flex flex-wrap">
-            {project.skills.map((skill, index) => (
-              <span
-                key={index}
-                className="bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-sm mr-2 mb-2"
-              >
-                {skill}
-              </span>
-            ))}
+  const containerStyle = {
+    width: '100%',
+    maxWidth: 900,
+    margin: '0 auto',
+    padding: '0 16px',
+  };
+
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case 'recruiting': return { bg: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', text: 'Recruiting' };
+      case 'active': return { bg: 'rgba(16, 185, 129, 0.1)', color: '#10b981', text: 'Active' };
+      default: return { bg: 'rgba(107, 114, 128, 0.1)', color: '#6b7280', text: 'Closed' };
+    }
+  };
+
+  if (!project) {
+    return (
+      <div style={{ minHeight: '100vh', paddingTop: 100, paddingBottom: 60 }}>
+        <div className="animated-bg"></div>
+        <div style={containerStyle}>
+          <div className="glass-card" style={{ padding: 60, textAlign: 'center' }}>
+            <FiGitBranch style={{ width: 48, height: 48, color: '#71717a', margin: '0 auto 16px' }} />
+            <h2 style={{ color: 'white', fontSize: 24, marginBottom: 8 }}>Project Not Found</h2>
+            <p style={{ color: '#a1a1aa', marginBottom: 24 }}>The project you're looking for doesn't exist.</p>
+            <button onClick={() => navigate('/projects')} className="btn-primary" style={{ padding: '12px 24px' }}>
+              <FiArrowLeft style={{ width: 18, height: 18 }} />
+              <span>Back to Projects</span>
+            </button>
           </div>
         </div>
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold text-white mb-2">
-            Project Details:
-          </h3>
-          <p className="text-gray-300 whitespace-pre-line">{project.details}</p>
-        </div>
       </div>
+    );
+  }
+
+  const statusStyle = getStatusStyle(project.status);
+
+  return (
+    <div style={{ minHeight: '100vh', paddingTop: 80, paddingBottom: 60 }}>
+      <div className="animated-bg"></div>
+      <div className="particles">
+        {[...Array(9)].map((_, i) => <div key={i} className="particle" />)}
+      </div>
+
+      <div style={containerStyle}>
+        {/* Back Button */}
+        <button
+          onClick={() => navigate('/projects')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            color: '#a1a1aa',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: 14,
+            marginBottom: 24,
+            padding: 0,
+          }}
+        >
+          <FiArrowLeft style={{ width: 18, height: 18 }} />
+          Back to Projects
+        </button>
+
+        {/* Header */}
+        <div className="glass-card" style={{ padding: 28, marginBottom: 24 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
+                  <span style={{
+                    padding: '4px 12px',
+                    background: statusStyle.bg,
+                    color: statusStyle.color,
+                    borderRadius: 50,
+                    fontSize: 12,
+                    fontWeight: 500,
+                  }}>
+                    {statusStyle.text}
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#71717a', fontSize: 13 }}>
+                    <FiCalendar style={{ width: 14, height: 14 }} />
+                    {project.createdAt}
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#eab308', fontSize: 13 }}>
+                    <FiStar style={{ width: 14, height: 14 }} />
+                    {project.stars}
+                  </span>
+                </div>
+                <h1 className="gradient-text" style={{ fontSize: 'clamp(24px, 4vw, 32px)', fontWeight: 700, marginBottom: 8 }}>
+                  {project.title}
+                </h1>
+                <p style={{ color: '#a1a1aa', fontSize: 16, lineHeight: 1.6 }}>
+                  {project.description}
+                </p>
+              </div>
+            </div>
+
+            {/* Skills */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {project.skills.map((skill, i) => (
+                <span key={i} style={{
+                  padding: '6px 14px',
+                  background: 'rgba(99, 102, 241, 0.1)',
+                  border: '1px solid rgba(99, 102, 241, 0.3)',
+                  borderRadius: 50,
+                  fontSize: 13,
+                  color: '#818cf8',
+                }}>{skill}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Content Grid */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+          gap: 24,
+          marginBottom: 24,
+        }}>
+          {/* About */}
+          <div className="glass-card" style={{ padding: 24 }}>
+            <h2 style={{ color: 'white', fontSize: 18, fontWeight: 600, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <FiGitBranch style={{ color: '#6366f1' }} />
+              About This Project
+            </h2>
+            <div style={{ color: '#d1d5db', fontSize: 14, lineHeight: 1.8, whiteSpace: 'pre-line' }}>
+              {project.fullDescription}
+            </div>
+          </div>
+
+          {/* Team */}
+          <div className="glass-card" style={{ padding: 24 }}>
+            <h2 style={{ color: 'white', fontSize: 18, fontWeight: 600, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <FiUsers style={{ color: '#10b981' }} />
+              Team Members ({project.members.length})
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {project.members.map((member, i) => (
+                <div key={i} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: 12,
+                  background: 'rgba(255,255,255,0.02)',
+                  borderRadius: 10,
+                }}>
+                  <div className="avatar" style={{ width: 40, height: 40, fontSize: 14 }}>
+                    {member.avatar}
+                  </div>
+                  <div>
+                    <p style={{ color: 'white', fontWeight: 500 }}>{member.name}</p>
+                    <p style={{ color: '#818cf8', fontSize: 13 }}>{member.role}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Open Positions */}
+        {project.openRoles.length > 0 && (
+          <div className="glass-card" style={{ padding: 24 }}>
+            <h2 style={{ color: 'white', fontSize: 18, fontWeight: 600, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <FiCheck style={{ color: '#f97316' }} />
+              Open Positions ({project.openRoles.length})
+            </h2>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+              gap: 16,
+            }}>
+              {project.openRoles.map((role, i) => (
+                <div key={i} style={{
+                  padding: 20,
+                  background: 'rgba(255,255,255,0.02)',
+                  border: '1px solid rgba(255,255,255,0.05)',
+                  borderRadius: 12,
+                }}>
+                  <h3 style={{ color: 'white', fontWeight: 500, marginBottom: 12 }}>{role}</h3>
+                  <button
+                    onClick={() => handleApply(role)}
+                    disabled={isApplying}
+                    className="btn-primary"
+                    style={{ width: '100%', padding: '12px 20px', fontSize: 14 }}
+                  >
+                    {isApplying ? (
+                      <div className="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                      </div>
+                    ) : (
+                      <>
+                        <FiCheck style={{ width: 16, height: 16 }} />
+                        <span>Apply Now</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <ToastContainer />
     </div>
   );
 };

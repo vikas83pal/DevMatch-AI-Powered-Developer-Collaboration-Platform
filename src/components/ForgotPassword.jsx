@@ -1,54 +1,126 @@
-// filepath: c:\Users\Lenovo\OneDrive\Desktop\side project\frontend\ui\src\components\ForgotPassword.jsx
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { FiMail, FiArrowRight, FiArrowLeft, FiKey } from 'react-icons/fi';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Password reset link sent to:', email);
-    // Add logic to send a password reset email via your backend or authentication service
+    setIsSubmitting(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      toast.success('Password reset link sent!', { position: 'top-center' });
+      setSubmitted(true);
+      setIsSubmitting(false);
+    }, 1500);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pt-24 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-      <div className="w-full max-w-md">
-        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10">
-          <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 mb-6 text-center">
-            Forgot Password
-          </h2>
-          <p className="text-gray-400 text-center mb-6">
-            Enter your email address to receive a password reset link.
-          </p>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-gray-400 text-sm mb-1">Email</label>
-              <div className="relative">
-                <input
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  required
-                />
-              </div>
+    <div className="auth-container">
+      <div className="animated-bg"></div>
+      <div className="particles">
+        {[...Array(9)].map((_, i) => <div key={i} className="particle" />)}
+      </div>
+
+      <div className="auth-card fade-in-up">
+        <div className="glass-card card-padding">
+          {/* Header */}
+          <div className="auth-header">
+            <div className="auth-logo">
+              <FiKey style={{ width: 28, height: 28, color: 'white' }} />
             </div>
-            <button
-              type="submit"
-              className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition"
-            >
-              Send Reset Link
-            </button>
-          </form>
-          <div className="text-center mt-6 text-gray-400">
-            Remembered your password?{' '}
-            <a href="/login" className="text-indigo-400 hover:text-indigo-300">
-              Sign in
-            </a>
+            <h1 className="auth-title gradient-text">Reset Password</h1>
+            <p className="auth-subtitle">
+              {submitted 
+                ? 'Check your email for the reset link' 
+                : 'Enter your email to receive a reset link'}
+            </p>
+          </div>
+
+          {!submitted ? (
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div className="form-group">
+                <label className="form-label">Email Address</label>
+                <div className="input-with-icon">
+                  <FiMail className="input-icon" style={{ width: 18, height: 18 }} />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="input-field"
+                    required
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="btn-primary"
+                style={{ marginTop: 8, padding: '14px 24px' }}
+              >
+                {isSubmitting ? (
+                  <div className="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                ) : (
+                  <>
+                    <span>Send Reset Link</span>
+                    <FiArrowRight style={{ width: 18, height: 18 }} />
+                  </>
+                )}
+              </button>
+            </form>
+          ) : (
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: 80,
+                height: 80,
+                background: 'rgba(16, 185, 129, 0.1)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 24px',
+              }}>
+                <FiMail style={{ width: 40, height: 40, color: '#10b981' }} />
+              </div>
+              <h3 style={{ color: 'white', fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
+                Email Sent!
+              </h3>
+              <p style={{ color: '#a1a1aa', fontSize: 14, marginBottom: 24 }}>
+                We've sent a password reset link to <strong style={{ color: 'white' }}>{email}</strong>
+              </p>
+              <button
+                onClick={() => setSubmitted(false)}
+                className="btn-secondary"
+                style={{ padding: '12px 20px' }}
+              >
+                <FiArrowLeft style={{ width: 16, height: 16 }} />
+                <span>Try another email</span>
+              </button>
+            </div>
+          )}
+
+          <div className="auth-footer">
+            <p>
+              Remember your password?{' '}
+              <Link to="/login">Sign in</Link>
+            </p>
           </div>
         </div>
       </div>
+
+      <ToastContainer />
     </div>
   );
 };

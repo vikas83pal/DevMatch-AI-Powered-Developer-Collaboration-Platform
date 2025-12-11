@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { FiMail, FiGithub, FiLinkedin } from 'react-icons/fi';
-import emailjs from 'emailjs-com';
+import { FiMail, FiGithub, FiLinkedin, FiUser, FiMessageSquare, FiSend, FiMapPin, FiPhone } from 'react-icons/fi';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    subject: '',
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,124 +21,247 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    emailjs
-      .send(
-        'YOUR_SERVICE_ID', // Replace with your EmailJS service ID
-        'YOUR_TEMPLATE_ID', // Replace with your EmailJS template ID
-        {
-          from_name: formData.name,
-          from_email: formData.email,
-          message: formData.message,
-        },
-        'YOUR_USER_ID' // Replace with your EmailJS user ID
-      )
-      .then(
-        (response) => {
-          console.log('SUCCESS!', response.status, response.text);
-          setSuccessMessage('Your message has been sent successfully!');
-          setFormData({ name: '', email: '', message: '' });
-          setIsSubmitting(false);
-        },
-        (error) => {
-          console.error('FAILED...', error);
-          setSuccessMessage('Failed to send your message. Please try again.');
-          setIsSubmitting(false);
-        }
-      );
+    // Simulate sending
+    setTimeout(() => {
+      toast.success('Message sent successfully! We\'ll get back to you soon.', { position: 'top-center' });
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      setIsSubmitting(false);
+    }, 1500);
+  };
+
+  const contactMethods = [
+    { 
+      Icon: FiMail, 
+      title: 'Email', 
+      value: 'vikas83pal@gmail.com', 
+      href: 'mailto:vikas83pal@gmail.com',
+      color: '#6366f1' 
+    },
+    { 
+      Icon: FiGithub, 
+      title: 'GitHub', 
+      value: 'github.com/vikas83pal', 
+      href: 'https://github.com/vikas83pal',
+      color: '#ffffff' 
+    },
+    { 
+      Icon: FiLinkedin, 
+      title: 'LinkedIn', 
+      value: 'linkedin.com/in/vikas-pal', 
+      href: 'https://www.linkedin.com/in/vikas-pal-b91067254/',
+      color: '#0077b5' 
+    },
+  ];
+
+  const containerStyle = {
+    width: '100%',
+    maxWidth: 900,
+    margin: '0 auto',
+    padding: '0 16px',
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto text-center">
-        {/* Contact Form */}
-        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10">
-          <h3 className="text-2xl font-bold text-white mb-6">Contact Me</h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <input
-                type="text"
-                name="name"
-                placeholder="Your Name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
-            </div>
-            <div>
-              <input
-                type="email"
-                name="email"
-                placeholder="Your Email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
-            </div>
-            <div>
-              <textarea
-                name="message"
-                placeholder="Your Message"
-                rows="4"
-                value={formData.message}
-                onChange={handleChange}
-                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              ></textarea>
-            </div>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`w-full py-3 px-4 ${
-                isSubmitting ? 'bg-gray-600' : 'bg-indigo-600 hover:bg-indigo-700'
-              } text-white font-medium rounded-lg transition`}
-            >
-              {isSubmitting ? 'Sending...' : 'Send Message'}
-            </button>
-          </form>
-          {successMessage && (
-            <p className="mt-4 text-indigo-400">{successMessage}</p>
-          )}
+    <div style={{ minHeight: '100vh', paddingTop: 100, paddingBottom: 60 }}>
+      <div className="animated-bg"></div>
+      <div className="particles">
+        {[...Array(9)].map((_, i) => <div key={i} className="particle" />)}
+      </div>
+
+      <div style={containerStyle}>
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: 48 }}>
+          <div style={{
+            width: 64,
+            height: 64,
+            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+            borderRadius: 18,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 20px',
+          }}>
+            <FiMessageSquare style={{ width: 32, height: 32, color: 'white' }} />
+          </div>
+          <h1 className="gradient-text" style={{ fontSize: 'clamp(28px, 5vw, 40px)', fontWeight: 700, marginBottom: 12 }}>
+            Get In Touch
+          </h1>
+          <p style={{ color: '#a1a1aa', fontSize: 16, maxWidth: 500, margin: '0 auto' }}>
+            Have a question or want to collaborate? We'd love to hear from you!
+          </p>
         </div>
 
-        {/* Alternative Contact Options */}
-        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10 mt-8">
-          <h3 className="text-xl font-semibold text-white mb-6">
-            Alternatively, you can reach me through:
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <a
-              href="mailto:vikas83pal@gmail.com"
-              className="bg-gray-800/50 hover:bg-gray-700/50 p-4 rounded-lg border border-gray-700 transition flex flex-col items-center"
-            >
-              <FiMail className="text-indigo-400 text-3xl mb-3" />
-              <span className="text-white">Email</span>
-              <span className="text-gray-400 text-sm mt-1">vikas83pal@gmail.com</span>
-            </a>
-            <a
-              href="https://github.com/vikas83pal"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-gray-800/50 hover:bg-gray-700/50 p-4 rounded-lg border border-gray-700 transition flex flex-col items-center"
-            >
-              <FiGithub className="text-indigo-400 text-3xl mb-3" />
-              <span className="text-white">GitHub</span>
-              <span className="text-gray-400 text-sm mt-1">github.com/vikas83pal</span>
-            </a>
-            <a
-              href="https://www.linkedin.com/in/vikas-pal-b91067254/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-gray-800/50 hover:bg-gray-700/50 p-4 rounded-lg border border-gray-700 transition flex flex-col items-center"
-            >
-              <FiLinkedin className="text-indigo-400 text-3xl mb-3" />
-              <span className="text-white">LinkedIn</span>
-              <span className="text-gray-400 text-sm mt-1">linkedin.com/in/vikas-pal</span>
-            </a>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+          gap: 32,
+        }}>
+          {/* Contact Form */}
+          <div className="glass-card" style={{ padding: 28 }}>
+            <h2 style={{ color: 'white', fontSize: 20, fontWeight: 600, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <FiSend style={{ color: '#6366f1' }} />
+              Send a Message
+            </h2>
+            
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div className="form-group">
+                <label className="form-label">Your Name</label>
+                <div className="input-with-icon">
+                  <FiUser className="input-icon" style={{ width: 18, height: 18 }} />
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="John Doe"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="input-field"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Email Address</label>
+                <div className="input-with-icon">
+                  <FiMail className="input-icon" style={{ width: 18, height: 18 }} />
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="you@example.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="input-field"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Subject</label>
+                <input
+                  type="text"
+                  name="subject"
+                  placeholder="How can we help?"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  className="input-field"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Message</label>
+                <textarea
+                  name="message"
+                  placeholder="Tell us more about your inquiry..."
+                  rows="5"
+                  value={formData.message}
+                  onChange={handleChange}
+                  className="input-field"
+                  style={{ resize: 'none' }}
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="btn-primary"
+                style={{ marginTop: 8, padding: '14px 24px' }}
+              >
+                {isSubmitting ? (
+                  <div className="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                ) : (
+                  <>
+                    <FiSend style={{ width: 18, height: 18 }} />
+                    <span>Send Message</span>
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+
+          {/* Contact Info */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            {/* Info Card */}
+            <div className="glass-card" style={{ padding: 28 }}>
+              <h2 style={{ color: 'white', fontSize: 20, fontWeight: 600, marginBottom: 20 }}>
+                Contact Information
+              </h2>
+              <p style={{ color: '#a1a1aa', fontSize: 14, lineHeight: 1.7, marginBottom: 24 }}>
+                Feel free to reach out through any of the following channels. We typically respond within 24 hours.
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {contactMethods.map((method, i) => (
+                  <a
+                    key={i}
+                    href={method.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 14,
+                      padding: 14,
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.05)',
+                      borderRadius: 12,
+                      textDecoration: 'none',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    <div style={{
+                      width: 44,
+                      height: 44,
+                      background: `${method.color}15`,
+                      borderRadius: 10,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                      <method.Icon style={{ width: 22, height: 22, color: method.color }} />
+                    </div>
+                    <div>
+                      <p style={{ color: 'white', fontWeight: 500, fontSize: 14 }}>{method.title}</p>
+                      <p style={{ color: '#a1a1aa', fontSize: 13 }}>{method.value}</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Location Card */}
+            <div className="glass-card" style={{ padding: 28 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                <div style={{
+                  width: 44,
+                  height: 44,
+                  background: 'rgba(16, 185, 129, 0.15)',
+                  borderRadius: 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <FiMapPin style={{ width: 22, height: 22, color: '#10b981' }} />
+                </div>
+                <div>
+                  <p style={{ color: 'white', fontWeight: 500 }}>Location</p>
+                  <p style={{ color: '#a1a1aa', fontSize: 14 }}>Remote - Worldwide</p>
+                </div>
+              </div>
+              <p style={{ color: '#71717a', fontSize: 13, lineHeight: 1.6 }}>
+                DevMatch is a fully remote platform, connecting developers from around the globe.
+              </p>
+            </div>
           </div>
         </div>
       </div>
+
+      <ToastContainer />
     </div>
   );
 };

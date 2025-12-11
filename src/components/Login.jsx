@@ -1,128 +1,264 @@
 import React, { useState } from 'react';
 import { FcGoogle } from 'react-icons/fc';
 import { FaGithub } from 'react-icons/fa';
-import { FiMail, FiLock } from 'react-icons/fi';
+import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight, FiZap } from 'react-icons/fi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from 'react-router-dom';
 
-const Login = ({ setLoggedIn, setInitials }) => {
+const Login = () => {
   const navigate = useNavigate();
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleGoogleLogin = () => {
-    console.log('Google login clicked');
+    toast.info('Connecting to Google...', { position: 'top-center', autoClose: 1000 });
+    
+    setTimeout(() => {
+      const mockUser = {
+        id: Date.now(),
+        name: 'Google User',
+        email: 'google@example.com',
+        avatar: 'GU',
+        provider: 'google'
+      };
+
+      localStorage.setItem('token', 'google_' + Date.now());
+      localStorage.setItem('user', JSON.stringify(mockUser));
+
+      toast.success('Successfully logged in! 🎉', { position: 'top-center', autoClose: 1500 });
+
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 1500);
+    }, 1000);
   };
 
   const handleGithubLogin = () => {
-    console.log('GitHub login clicked');
+    toast.info('Connecting to GitHub...', { position: 'top-center', autoClose: 1000 });
+    
+    setTimeout(() => {
+      const mockUser = {
+        id: Date.now(),
+        name: 'GitHub Developer',
+        email: 'github@example.com',
+        avatar: 'GD',
+        provider: 'github'
+      };
+
+      localStorage.setItem('token', 'github_' + Date.now());
+      localStorage.setItem('user', JSON.stringify(mockUser));
+
+      toast.success('Successfully logged in! 🎉', { position: 'top-center', autoClose: 1500 });
+
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 1500);
+    }, 1000);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    localStorage.setItem('email', email);
-    localStorage.setItem('password', password);
-    const firstTwo = email.slice(0, 2).toUpperCase();
-    setInitials(firstTwo);
-    setLoggedIn(true);
-    toast.success("Login successful!", { position: "top-center", autoClose: 1000 });
+    
+    if (!email || !password) {
+      toast.error('Please fill in all fields', { position: 'top-center' });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    // Simulate login
     setTimeout(() => {
-      navigate("/");
+      localStorage.setItem('token', 'demo_' + Date.now());
+      localStorage.setItem('user', JSON.stringify({
+        id: Date.now(),
+        name: email.split('@')[0],
+        email: email,
+        avatar: email.slice(0, 2).toUpperCase(),
+      }));
+
+      toast.success('Welcome back! 🎉', { position: 'top-center', autoClose: 1500 });
+
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 1500);
+
+      setIsSubmitting(false);
     }, 1000);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pt-24 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center relative">
-      <div className="w-full max-w-md">
-        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 mb-2">
-              Welcome Back
-            </h2>
-            <p className="text-gray-400">Sign in to continue to DevMatch</p>
+    <div className="auth-container">
+      {/* Animated Background */}
+      <div className="animated-bg"></div>
+      
+      {/* Particles */}
+      <div className="particles">
+        {[...Array(9)].map((_, i) => (
+          <div key={i} className="particle" />
+        ))}
+      </div>
+
+      {/* Login Card */}
+      <div className="auth-card fade-in-up">
+        <div className="glass-card card-padding">
+          {/* Header */}
+          <div className="auth-header">
+            <div className="auth-logo">
+              <FiZap style={{ width: 28, height: 28, color: 'white' }} />
+            </div>
+            <h1 className="auth-title gradient-text">Welcome Back</h1>
+            <p className="auth-subtitle">Sign in to continue your journey</p>
           </div>
 
-          <div className="space-y-4 mb-6">
+          {/* OAuth Buttons */}
+          <div className="oauth-section">
             <button
+              type="button"
               onClick={handleGoogleLogin}
-              className="w-full flex items-center justify-center py-3 px-4 bg-white/10 hover:bg-white/20 text-white rounded-lg transition border border-white/10"
+              className="btn-oauth btn-oauth-google"
+              disabled={isSubmitting}
             >
-              <FcGoogle className="text-xl mr-3" /> Continue with Google
+              <FcGoogle style={{ width: 20, height: 20 }} />
+              <span>Continue with Google</span>
             </button>
 
             <button
+              type="button"
               onClick={handleGithubLogin}
-              className="w-full flex items-center justify-center py-3 px-4 bg-white/10 hover:bg-white/20 text-white rounded-lg transition border border-white/10"
+              className="btn-oauth btn-oauth-github"
+              disabled={isSubmitting}
             >
-              <FaGithub className="text-xl mr-3" /> Continue with GitHub
+              <FaGithub style={{ width: 20, height: 20 }} />
+              <span>Continue with GitHub</span>
             </button>
           </div>
 
-          <div className="flex items-center my-6">
-            <div className="flex-grow border-t border-gray-700"></div>
-            <span className="mx-4 text-gray-400 text-sm">OR</span>
-            <div className="flex-grow border-t border-gray-700"></div>
+          {/* Divider */}
+          <div className="divider">
+            <span>or continue with email</span>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-gray-400 text-sm mb-1">Email</label>
-              <div className="relative">
-                <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* Email Field */}
+            <div className="form-group">
+              <label className="form-label">Email Address</label>
+              <div className="input-with-icon">
+                <FiMail className="input-icon" style={{ width: 18, height: 18 }} />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
-                  className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="you@example.com"
+                  className="input-field"
                   required
                 />
               </div>
             </div>
 
-            <div>
-              <label className="block text-gray-400 text-sm mb-1">Password</label>
-              <div className="relative">
-                <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+            {/* Password Field */}
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              <div className="input-with-icon" style={{ position: 'relative' }}>
+                <FiLock className="input-icon" style={{ width: 18, height: 18 }} />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="input-field"
+                  style={{ paddingRight: 44 }}
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: 14,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    color: '#71717a'
+                  }}
+                >
+                  {showPassword ? (
+                    <FiEyeOff style={{ width: 18, height: 18 }} />
+                  ) : (
+                    <FiEye style={{ width: 18, height: 18 }} />
+                  )}
+                </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <label className="flex items-center text-gray-400 text-sm">
-                <input type="checkbox" className="rounded bg-gray-800/50 border-gray-700 text-indigo-600 focus:ring-indigo-500 mr-2" />
-                Remember me
+            {/* Remember Me & Forgot Password */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: '#a1a1aa' }}>
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  style={{ width: 16, height: 16, accentColor: '#6366f1' }}
+                />
+                <span>Remember me</span>
               </label>
-              <a href="/forgot" className="text-sm text-indigo-400 hover:text-indigo-300">
+              <Link 
+                to="/forgot" 
+                style={{ fontSize: 13, color: '#6366f1', textDecoration: 'none' }}
+              >
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
-              className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition mt-4"
+              disabled={isSubmitting}
+              className="btn-primary"
+              style={{ marginTop: 8, padding: '14px 24px' }}
             >
-              Sign In
+              {isSubmitting ? (
+                <div className="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              ) : (
+                <>
+                  <span>Sign In</span>
+                  <FiArrowRight style={{ width: 18, height: 18 }} />
+                </>
+              )}
             </button>
           </form>
 
-          <div className="text-center mt-6 text-gray-400">
-            Don't have an account?{' '}
-            <a href="/signup" className="text-indigo-400 hover:text-indigo-300">
-              Sign up
-            </a>
+          {/* Sign Up Link */}
+          <div className="auth-footer">
+            <p>
+              Don't have an account?{' '}
+              <Link to="/signup">Create one now</Link>
+            </p>
           </div>
         </div>
-        <ToastContainer />
+
+        {/* Terms */}
+        <p style={{ textAlign: 'center', color: '#71717a', fontSize: 12, marginTop: 20 }}>
+          By signing in, you agree to our{' '}
+          <a href="#" style={{ color: '#6366f1', textDecoration: 'none' }}>Terms</a>
+          {' '}and{' '}
+          <a href="#" style={{ color: '#6366f1', textDecoration: 'none' }}>Privacy Policy</a>
+        </p>
       </div>
+
+      <ToastContainer />
     </div>
   );
 };
