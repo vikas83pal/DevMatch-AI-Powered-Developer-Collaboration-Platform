@@ -41,7 +41,7 @@ const ProjectsList = () => {
     try {
       setLoading(true);
       const response = await projectAPI.getAll();
-      setProjects(response.data.projects || []); 
+      setProjects(response.data?.projects || response.projects || []); 
     } catch (error) {
       console.error('Failed to fetch projects:', error);
       toast.error('Failed to load projects');
@@ -49,6 +49,35 @@ const ProjectsList = () => {
       setLoading(false);
     }
   };
+
+  // Categories for filtering
+  const categories = [
+    "All",
+    "Web Development",
+    "Mobile",
+    "AI/ML",
+    "DevOps",
+    "Blockchain",
+    "Data Science",
+    "IoT",
+    "Game Development",
+  ];
+
+  // Filter projects based on search and category
+  const filteredProjects = projects.filter((project) => {
+    const matchesSearch =
+      searchQuery === "" ||
+      project.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      project.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      project.skills?.some((skill) =>
+        skill.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+    const matchesCategory =
+      selectedCategory === "All" || project.category === selectedCategory;
+
+    return matchesSearch && matchesCategory;
+  });
 
   const handleAddProject = async () => {
     if (!newProject.title || !newProject.description) {

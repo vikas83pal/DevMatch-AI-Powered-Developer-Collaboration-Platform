@@ -4,6 +4,15 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
+// Import feature routes
+const candidatesRouter = require('./routes/candidates');
+const interviewsRouter = require('./routes/interviews');
+const mobileRouter = require('./routes/mobile');
+const atsRouter = require('./routes/ats');
+const proctoringRouter = require('./routes/proctoring');
+const collaborationRouter = require('./routes/collaboration');
+const assessmentsRouter = require('./routes/assessments');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'devmatch_super_secret_key_2024';
@@ -11,6 +20,15 @@ const JWT_SECRET = process.env.JWT_SECRET || 'devmatch_super_secret_key_2024';
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Register feature routes
+app.use('/api/candidates', candidatesRouter);
+app.use('/api/interviews', interviewsRouter);
+app.use('/api/mobile', mobileRouter);
+app.use('/api/ats', atsRouter);
+app.use('/api/proctoring', proctoringRouter);
+app.use('/api/collaboration', collaborationRouter);
+app.use('/api/assessments', assessmentsRouter);
 
 // In-memory database (replace with MongoDB/MySQL in production)
 let users = [];
@@ -26,6 +44,8 @@ let projects = [
     createdAt: new Date(),
     stars: 156,
     views: 2340,
+    teamSize: 3,
+    openRoles: 2,
   },
   {
     id: 2,
@@ -38,6 +58,8 @@ let projects = [
     createdAt: new Date(),
     stars: 89,
     views: 1560,
+    teamSize: 5,
+    openRoles: 0,
   },
   {
     id: 3,
@@ -50,6 +72,8 @@ let projects = [
     createdAt: new Date(),
     stars: 234,
     views: 3210,
+    teamSize: 4,
+    openRoles: 3,
   },
   {
     id: 4,
@@ -62,6 +86,8 @@ let projects = [
     createdAt: new Date(),
     stars: 178,
     views: 1890,
+    teamSize: 2,
+    openRoles: 0,
   },
   {
     id: 5,
@@ -74,6 +100,8 @@ let projects = [
     createdAt: new Date(),
     stars: 312,
     views: 4520,
+    teamSize: 3,
+    openRoles: 2,
   },
 ];
 let notifications = [];
