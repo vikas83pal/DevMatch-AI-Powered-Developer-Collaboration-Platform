@@ -137,6 +137,63 @@ transporter.verify((error, success) => {
   }
 });
 
+// ============== PRODUCTION AUTH SETUP ==============
+
+// Crypto for secure token generation
+const crypto = require('crypto');
+
+// In-memory storage for production auth (use Redis in production)
+let refreshTokens = new Map(); // userId -> { token, expiresAt }
+let passwordResetTokens = new Map(); // token -> { userId, email, expiresAt }
+let emailVerificationTokens = new Map(); // token -> { userId, email, expiresAt }
+let loginAttempts = new Map(); // ip/email -> { count, lastAttempt }
+
+// Rate limiting configuration
+const RATE_LIMITS = {
+  login: { maxAttempts: 5, windowMs: 60000 }, // 5 attempts per minute
+  passwordReset: { maxAttempts: 3, windowMs: 300000 }, // 3 attempts per 5 minutes
+  register: { maxAttempts: 3, windowMs: 300000 }, // 3 registrations per 5 minutes
+};
+
+// Rate limiting middleware
+const rateLimiter = (type) => (req, res, next) => {
+  const key = `${type}:${req.ip}:${req.body.email || ''}`;
+  const now = Date.now();
+  const limit = RATE_LIMITS[type];
+
+  if (!limit) return next();
+
+  const attempts = loginAttempts.get(key) || { count: 0, lastAttempt: 0 };
+
+  // Reset if window has passed
+  if (now - attempts.lastAttempt > limit.windowMs) {
+    attempts.count = 0;
+  }
+
+  if (attempts.count >= limit.maxAttempts) {
+    const retryAfter = Math.ceil((limit.windowMs - (now - attempts.lastAttempt)) / 1000);
+    return res.status(429).json({
+      message: `Too many ${type} attempts. Please try again in ${retryAfter} seconds.`,
+      retryAfter
+    });
+  }
+
+  attempts.count++;
+  attempts.lastAttempt = now;
+  loginAttempts.set(key, attempts);
+
+  next();
+};
+
+// Generate secure tokens
+const generateSecureToken = () => crypto.randomBytes(32).toString('hex');
+
+// Token expiry times
+const ACCESS_TOKEN_EXPIRY = '15m';  // 15 minutes
+const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days in ms
+const RESET_TOKEN_EXPIRY = 60 * 60 * 1000; // 1 hour in ms
+
+
 // ============== AUTH MIDDLEWARE ==============
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -271,6 +328,10 @@ app.post('/api/auth/logout', authenticateToken, (req, res) => {
     user.isOnline = false;
     user.lastActive = new Date();
   }
+
+  // Clear refresh token
+  refreshTokens.delete(req.user.id);
+
   res.json({ message: 'Logged out successfully' });
 });
 
@@ -282,6 +343,208 @@ app.get('/api/auth/me', authenticateToken, (req, res) => {
   }
   const { password: _, ...userWithoutPassword } = user;
   res.json({ user: userWithoutPassword });
+});
+
+// Refresh access token
+app.post('/api/auth/refresh', (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({ message: 'Refresh token required' });
+    }
+
+    // Find user with this refresh token
+    let foundUserId = null;
+    for (const [userId, tokenData] of refreshTokens.entries()) {
+      if (tokenData.token === refreshToken && tokenData.expiresAt > Date.now()) {
+        foundUserId = userId;
+        break;
+      }
+    }
+
+    if (!foundUserId) {
+      return res.status(401).json({ message: 'Invalid or expired refresh token' });
+    }
+
+    const user = users.find(u => u.id === foundUserId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Generate new access token
+    const newAccessToken = jwt.sign(
+      { id: user.id, email: user.email, name: user.name },
+      JWT_SECRET,
+      { expiresIn: ACCESS_TOKEN_EXPIRY }
+    );
+
+    // Generate new refresh token
+    const newRefreshToken = generateSecureToken();
+    refreshTokens.set(user.id, {
+      token: newRefreshToken,
+      expiresAt: Date.now() + REFRESH_TOKEN_EXPIRY,
+    });
+
+    res.json({
+      message: 'Token refreshed',
+      token: newAccessToken,
+      refreshToken: newRefreshToken,
+    });
+  } catch (error) {
+    console.error('Token refresh error:', error);
+    res.status(500).json({ message: 'Error refreshing token' });
+  }
+});
+
+// Forgot password - request reset
+app.post('/api/auth/forgot-password', rateLimiter('passwordReset'), async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    const user = users.find(u => u.email === email);
+
+    // Always return success to prevent email enumeration
+    if (!user) {
+      return res.json({ message: 'If an account exists, a reset email has been sent' });
+    }
+
+    // Generate reset token
+    const resetToken = generateSecureToken();
+    passwordResetTokens.set(resetToken, {
+      userId: user.id,
+      email: user.email,
+      expiresAt: Date.now() + RESET_TOKEN_EXPIRY,
+    });
+
+    // Send reset email
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+
+    try {
+      await transporter.sendMail({
+        from: `"DevMatch" <${process.env.EMAIL_USER || 'noreply@devmatch.io'}>`,
+        to: email,
+        subject: '🔐 Reset Your DevMatch Password',
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <style>
+              body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f0f17; margin: 0; padding: 40px 20px; }
+              .container { max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #1a1a2e, #16162a); border-radius: 20px; padding: 40px; border: 1px solid rgba(99, 102, 241, 0.2); }
+              .logo { text-align: center; font-size: 28px; font-weight: bold; background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 30px; }
+              h1 { color: #ffffff; font-size: 22px; text-align: center; margin-bottom: 20px; }
+              p { color: #a1a1aa; font-size: 16px; line-height: 1.7; margin-bottom: 20px; }
+              .button { display: inline-block; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white !important; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 600; margin: 20px 0; }
+              .warning { color: #f97316; font-size: 14px; }
+              .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+              .footer p { color: #71717a; font-size: 12px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="logo">DevMatch</div>
+              <h1>Password Reset Request</h1>
+              <p>Hi ${user.name},</p>
+              <p>We received a request to reset your DevMatch account password. Click the button below to create a new password:</p>
+              <p style="text-align: center;">
+                <a href="${resetUrl}" class="button">Reset Password</a>
+              </p>
+              <p class="warning">⚠️ This link expires in 1 hour.</p>
+              <p>If you didn't request this, you can safely ignore this email.</p>
+              <div class="footer">
+                <p>© ${new Date().getFullYear()} DevMatch. All rights reserved.</p>
+              </div>
+            </div>
+          </body>
+          </html>
+        `,
+      });
+      console.log(`📧 Password reset email sent to ${email}`);
+    } catch (emailError) {
+      console.log(`⚠️  Email not sent (service not configured). Reset token: ${resetToken}`);
+    }
+
+    res.json({ message: 'If an account exists, a reset email has been sent' });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ message: 'Error processing request' });
+  }
+});
+
+// Reset password with token
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({ message: 'Token and password are required' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters' });
+    }
+
+    const tokenData = passwordResetTokens.get(token);
+
+    if (!tokenData || tokenData.expiresAt < Date.now()) {
+      return res.status(400).json({ message: 'Invalid or expired reset token' });
+    }
+
+    const userIndex = users.findIndex(u => u.id === tokenData.userId);
+    if (userIndex === -1) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(12);
+    users[userIndex].password = await bcrypt.hash(password, salt);
+
+    // Remove used token
+    passwordResetTokens.delete(token);
+
+    // Clear all refresh tokens for this user (force re-login)
+    refreshTokens.delete(tokenData.userId);
+
+    res.json({ message: 'Password reset successful. Please login with your new password.' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ message: 'Error resetting password' });
+  }
+});
+
+// Verify email
+app.post('/api/auth/verify-email', (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ message: 'Verification token required' });
+    }
+
+    const tokenData = emailVerificationTokens.get(token);
+
+    if (!tokenData || tokenData.expiresAt < Date.now()) {
+      return res.status(400).json({ message: 'Invalid or expired verification token' });
+    }
+
+    const userIndex = users.findIndex(u => u.id === tokenData.userId);
+    if (userIndex === -1) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    users[userIndex].emailVerified = true;
+    emailVerificationTokens.delete(token);
+
+    res.json({ message: 'Email verified successfully' });
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.status(500).json({ message: 'Error verifying email' });
+  }
 });
 
 // ============== USER ROUTES ==============
@@ -446,6 +709,202 @@ app.post('/api/projects', authenticateToken, (req, res) => {
   createNotification(req.user.id, 'project', 'Project Created', `Your project "${title}" has been created!`);
 
   res.status(201).json({ message: 'Project created', project: newProject });
+});
+
+// Get project by ID
+app.get('/api/projects/:id', (req, res) => {
+  const projectId = parseInt(req.params.id);
+  const project = projects.find(p => p.id === projectId);
+
+  if (!project) {
+    return res.status(404).json({ message: 'Project not found' });
+  }
+
+  // Get member details
+  const memberDetails = project.members.map(memberId => {
+    const user = users.find(u => u.id === memberId);
+    if (user) {
+      return {
+        id: user.id,
+        name: user.name,
+        role: user.role || 'Developer',
+        avatar: user.avatar || user.name.slice(0, 2).toUpperCase(),
+      };
+    }
+    return null;
+  }).filter(Boolean);
+
+  // Enhanced project data with full details
+  const fullProject = {
+    ...project,
+    fullDescription: project.details || project.description,
+    members: memberDetails,
+    openRoles: project.openRoles || ['Developer', 'Designer'],
+    stars: project.stars || Math.floor(Math.random() * 200) + 50,
+    views: project.views || Math.floor(Math.random() * 3000) + 500,
+  };
+
+  // Increment view count
+  const projectIndex = projects.findIndex(p => p.id === projectId);
+  if (projectIndex !== -1) {
+    projects[projectIndex].views = (projects[projectIndex].views || 0) + 1;
+  }
+
+  res.json({ project: fullProject });
+});
+
+// Update project
+app.put('/api/projects/:id', authenticateToken, (req, res) => {
+  const projectId = parseInt(req.params.id);
+  const projectIndex = projects.findIndex(p => p.id === projectId);
+
+  if (projectIndex === -1) {
+    return res.status(404).json({ message: 'Project not found' });
+  }
+
+  const project = projects[projectIndex];
+
+  // Check if user is the creator or a member
+  if (project.createdBy !== req.user.id && !project.members.includes(req.user.id)) {
+    return res.status(403).json({ message: 'Not authorized to update this project' });
+  }
+
+  const { title, description, details, skills, status, category, openRoles } = req.body;
+
+  if (title) projects[projectIndex].title = title;
+  if (description) projects[projectIndex].description = description;
+  if (details) projects[projectIndex].details = details;
+  if (skills) projects[projectIndex].skills = Array.isArray(skills) ? skills : skills.split(',').map(s => s.trim());
+  if (status) projects[projectIndex].status = status;
+  if (category) projects[projectIndex].category = category;
+  if (openRoles) projects[projectIndex].openRoles = openRoles;
+
+  res.json({ message: 'Project updated', project: projects[projectIndex] });
+});
+
+// Join project
+app.post('/api/projects/:id/join', authenticateToken, (req, res) => {
+  const projectId = parseInt(req.params.id);
+  const projectIndex = projects.findIndex(p => p.id === projectId);
+
+  if (projectIndex === -1) {
+    return res.status(404).json({ message: 'Project not found' });
+  }
+
+  if (projects[projectIndex].members.includes(req.user.id)) {
+    return res.status(400).json({ message: 'Already a member of this project' });
+  }
+
+  projects[projectIndex].members.push(req.user.id);
+
+  // Update user stats
+  const userIndex = users.findIndex(u => u.id === req.user.id);
+  if (userIndex !== -1) {
+    users[userIndex].projectsJoined = (users[userIndex].projectsJoined || 0) + 1;
+  }
+
+  createNotification(req.user.id, 'project', 'Joined Project', `You've joined "${projects[projectIndex].title}"!`);
+
+  res.json({ message: 'Successfully joined the project', project: projects[projectIndex] });
+});
+
+// Leave project
+app.post('/api/projects/:id/leave', authenticateToken, (req, res) => {
+  const projectId = parseInt(req.params.id);
+  const projectIndex = projects.findIndex(p => p.id === projectId);
+
+  if (projectIndex === -1) {
+    return res.status(404).json({ message: 'Project not found' });
+  }
+
+  const memberIndex = projects[projectIndex].members.indexOf(req.user.id);
+  if (memberIndex === -1) {
+    return res.status(400).json({ message: 'Not a member of this project' });
+  }
+
+  projects[projectIndex].members.splice(memberIndex, 1);
+
+  res.json({ message: 'Left the project successfully' });
+});
+
+// Star/unstar project
+app.post('/api/projects/:id/star', authenticateToken, (req, res) => {
+  const projectId = parseInt(req.params.id);
+  const projectIndex = projects.findIndex(p => p.id === projectId);
+
+  if (projectIndex === -1) {
+    return res.status(404).json({ message: 'Project not found' });
+  }
+
+  // Initialize starredBy array if doesn't exist
+  if (!projects[projectIndex].starredBy) {
+    projects[projectIndex].starredBy = [];
+  }
+
+  const isStarred = projects[projectIndex].starredBy.includes(req.user.id);
+
+  if (isStarred) {
+    // Unstar
+    projects[projectIndex].starredBy = projects[projectIndex].starredBy.filter(id => id !== req.user.id);
+    projects[projectIndex].stars = Math.max(0, (projects[projectIndex].stars || 0) - 1);
+    res.json({ message: 'Project unstarred', starred: false, stars: projects[projectIndex].stars });
+  } else {
+    // Star
+    projects[projectIndex].starredBy.push(req.user.id);
+    projects[projectIndex].stars = (projects[projectIndex].stars || 0) + 1;
+    res.json({ message: 'Project starred', starred: true, stars: projects[projectIndex].stars });
+  }
+});
+
+// Apply to project role
+app.post('/api/projects/:id/apply', authenticateToken, (req, res) => {
+  const projectId = parseInt(req.params.id);
+  const { role } = req.body;
+  const projectIndex = projects.findIndex(p => p.id === projectId);
+
+  if (projectIndex === -1) {
+    return res.status(404).json({ message: 'Project not found' });
+  }
+
+  const project = projects[projectIndex];
+
+  // Initialize applications array if doesn't exist
+  if (!project.applications) {
+    project.applications = [];
+  }
+
+  // Check if already applied
+  const existingApplication = project.applications.find(
+    app => app.userId === req.user.id && app.role === role
+  );
+
+  if (existingApplication) {
+    return res.status(400).json({ message: 'Already applied for this role' });
+  }
+
+  // Add application
+  const application = {
+    id: project.applications.length + 1,
+    userId: req.user.id,
+    userName: req.user.name,
+    role,
+    status: 'pending',
+    appliedAt: new Date(),
+  };
+
+  project.applications.push(application);
+
+  // Notify project creator
+  if (project.createdBy) {
+    createNotification(
+      project.createdBy,
+      'application',
+      'New Application',
+      `${req.user.name} applied for ${role} in "${project.title}"`
+    );
+  }
+
+  res.json({ message: `Successfully applied for ${role}`, application });
 });
 
 // ============== MESSAGES ROUTES ==============

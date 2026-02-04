@@ -10,17 +10,17 @@ import Footer from "./components/Footer";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import ForgotPassword from "./components/ForgotPassword";
+import ResetPassword from "./components/ResetPassword";
 import Contact from "./components/Contact";
 import Arena from "./components/Arena";
-import Dashboard from "./components/Dashboard";
 import Profile from "./components/Profile";
-import Analytics from "./components/Analytics";
+import ChatbotSupport from "./components/ChatbotSupport";
 import './App.css';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
-  
+
   // Also check localStorage as backup
   const hasToken = localStorage.getItem('token');
 
@@ -72,7 +72,7 @@ const PublicRoute = ({ children }) => {
   }
 
   if (isAuthenticated || hasToken) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/profile" replace />;
   }
 
   return children;
@@ -112,29 +112,14 @@ const AppContent = () => {
             }
           />
           <Route path="/forgot" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           {/* Protected Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
           <Route
             path="/profile"
             element={
               <ProtectedRoute>
                 <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/analytics"
-            element={
-              <ProtectedRoute>
-                <Analytics />
               </ProtectedRoute>
             }
           />
@@ -145,6 +130,7 @@ const AppContent = () => {
       </main>
 
       <Footer />
+      <ChatbotSupport />
     </div>
   );
 };

@@ -28,6 +28,53 @@ const request = async (endpoint, options = {}) => {
     return data;
 };
 
+// ============== AUTH API ==============
+export const authAPI = {
+    // Login user
+    login: (credentials) => request('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+    }),
+
+    // Register new user
+    register: (userData) => request('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(userData),
+    }),
+
+    // Logout user
+    logout: () => request('/auth/logout', {
+        method: 'POST',
+    }),
+
+    // Get current user
+    getCurrentUser: () => request('/auth/me'),
+
+    // Refresh access token
+    refreshToken: (refreshToken) => request('/auth/refresh', {
+        method: 'POST',
+        body: JSON.stringify({ refreshToken }),
+    }),
+
+    // Request password reset
+    forgotPassword: (email) => request('/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+    }),
+
+    // Reset password with token
+    resetPassword: ({ token, password }) => request('/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({ token, password }),
+    }),
+
+    // Verify email
+    verifyEmail: (token) => request('/auth/verify-email', {
+        method: 'POST',
+        body: JSON.stringify({ token }),
+    }),
+};
+
 // ============== PROJECTS API ==============
 export const projectAPI = {
     // Get all projects
@@ -448,6 +495,7 @@ export const assessmentsAPI = {
 
 // Export all APIs
 export default {
+    auth: authAPI,
     projects: projectAPI,
     candidates: candidatesAPI,
     interviews: interviewsAPI,

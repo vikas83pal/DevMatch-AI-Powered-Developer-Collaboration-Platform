@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   FiArrowLeft,
@@ -6,94 +6,69 @@ import {
   FiCalendar,
   FiGitBranch,
   FiStar,
-  FiMessageCircle,
-  FiExternalLink,
   FiCheck,
-  FiClock,
-  FiMapPin,
+  FiLoader,
+  FiAlertCircle,
 } from "react-icons/fi";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-const projectData = {
-  1: {
-    title: "AI Chatbot Platform",
-    description: "Building an AI-powered chatbot for customer service with natural language processing.",
-    fullDescription: `This project aims to create a comprehensive AI-powered chatbot platform that can handle customer service inquiries across multiple channels. The system uses advanced NLP techniques and machine learning to understand and respond to user queries in a natural, conversational manner.
-
-Key features include:
-- Multi-language support
-- Context-aware conversations
-- Integration with popular messaging platforms
-- Analytics dashboard for conversation insights
-- Custom training capabilities`,
-    skills: ["Python", "TensorFlow", "NLP", "React", "Node.js"],
-    members: [
-      { name: "Alice Johnson", role: "Project Lead", avatar: "AJ" },
-      { name: "Bob Smith", role: "ML Engineer", avatar: "BS" },
-      { name: "Carol Davis", role: "Frontend Dev", avatar: "CD" },
-    ],
-    openRoles: ["Backend Developer", "DevOps Engineer"],
-    status: "recruiting",
-    createdAt: "2024-01-10",
-    stars: 156,
-  },
-  2: {
-    title: "E-Commerce Dashboard",
-    description: "Full-stack e-commerce platform with real-time analytics and inventory management.",
-    fullDescription: `A modern e-commerce dashboard that provides merchants with powerful tools to manage their online stores. Built with React and Node.js, featuring real-time updates and comprehensive analytics.
-
-Key features include:
-- Real-time sales analytics
-- Inventory management system
-- Order tracking and fulfillment
-- Customer relationship management
-- Multi-vendor support`,
-    skills: ["React", "Node.js", "MongoDB", "Redis", "GraphQL"],
-    members: [
-      { name: "David Lee", role: "Full Stack Dev", avatar: "DL" },
-      { name: "Emma Wilson", role: "UI/UX Designer", avatar: "EW" },
-    ],
-    openRoles: ["Frontend Developer"],
-    status: "active",
-    createdAt: "2024-01-15",
-    stars: 89,
-  },
-  3: {
-    title: "Mobile Fitness App",
-    description: "Cross-platform fitness tracking app with workout plans and social features.",
-    fullDescription: `A comprehensive mobile fitness application that helps users track their workouts, set goals, and connect with other fitness enthusiasts.
-
-Key features include:
-- Personalized workout plans
-- Progress tracking with charts
-- Social feed and challenges
-- Integration with wearables
-- Nutrition tracking`,
-    skills: ["React Native", "Firebase", "TypeScript"],
-    members: [
-      { name: "Frank Garcia", role: "Mobile Developer", avatar: "FG" },
-    ],
-    openRoles: ["Backend Developer", "UI Designer"],
-    status: "recruiting",
-    createdAt: "2024-02-01",
-    stars: 234,
-  },
-};
+import { projectAPI } from '../services/api';
+import { useAuth } from '../auth/AuthProvider';
 
 const ProjectDetails = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const [isApplying, setIsApplying] = useState(false);
+  const { isAuthenticated } = useAuth();
 
-  const project = projectData[projectId];
+  const [project, setProject] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [applyingRole, setApplyingRole] = useState(null);
 
-  const handleApply = (role) => {
-    setIsApplying(true);
-    setTimeout(() => {
+  // Fetch project data from API
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await projectAPI.getById(projectId);
+        setProject(response.project);
+      } catch (err) {
+        console.error('Failed to fetch project:', err);
+        setError(err.message || 'Failed to load project');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (projectId) {
+      fetchProject();
+    }
+  }, [projectId]);
+
+  const handleApply = async (role) => {
+    if (!isAuthenticated) {
+      toast.info('Please login to apply for this role', { position: 'top-center' });
+      navigate('/login');
+      return;
+    }
+
+    setApplyingRole(role);
+    try {
+      await fetch(`http://localhost:5000/api/projects/${projectId}/apply`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({ role }),
+      });
       toast.success(`Applied for ${role} position!`, { position: 'top-center' });
-      setIsApplying(false);
-    }, 1000);
+    } catch (err) {
+      toast.error(err.message || 'Failed to apply', { position: 'top-center' });
+    } finally {
+      setApplyingRole(null);
+    }
   };
 
   const containerStyle = {
@@ -104,13 +79,50 @@ const ProjectDetails = () => {
   };
 
   const getStatusStyle = (status) => {
-    switch (status) {
-      case 'recruiting': return { bg: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', text: 'Recruiting' };
-      case 'active': return { bg: 'rgba(16, 185, 129, 0.1)', color: '#10b981', text: 'Active' };
-      default: return { bg: 'rgba(107, 114, 128, 0.1)', color: '#6b7280', text: 'Closed' };
-    }
+    const statusLower = (status || '').toLowerCase();
+    if (statusLower.includes('recruit')) return { bg: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', text: 'Recruiting' };
+    if (statusLower.includes('active')) return { bg: 'rgba(16, 185, 129, 0.1)', color: '#10b981', text: 'Active' };
+    return { bg: 'rgba(107, 114, 128, 0.1)', color: '#6b7280', text: status || 'Unknown' };
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div style={{ minHeight: '100vh', paddingTop: 100, paddingBottom: 60 }}>
+        <div className="animated-bg"></div>
+        <div style={containerStyle}>
+          <div className="glass-card" style={{ padding: 60, textAlign: 'center' }}>
+            <FiLoader style={{ width: 48, height: 48, color: '#6366f1', margin: '0 auto 16px', animation: 'spin 1s linear infinite' }} />
+            <h2 style={{ color: 'white', fontSize: 24, marginBottom: 8 }}>Loading Project...</h2>
+            <p style={{ color: '#a1a1aa' }}>Please wait while we fetch the project details.</p>
+          </div>
+        </div>
+        <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div style={{ minHeight: '100vh', paddingTop: 100, paddingBottom: 60 }}>
+        <div className="animated-bg"></div>
+        <div style={containerStyle}>
+          <div className="glass-card" style={{ padding: 60, textAlign: 'center' }}>
+            <FiAlertCircle style={{ width: 48, height: 48, color: '#ef4444', margin: '0 auto 16px' }} />
+            <h2 style={{ color: 'white', fontSize: 24, marginBottom: 8 }}>Error Loading Project</h2>
+            <p style={{ color: '#a1a1aa', marginBottom: 24 }}>{error}</p>
+            <button onClick={() => navigate('/projects')} className="btn-primary" style={{ padding: '12px 24px' }}>
+              <FiArrowLeft style={{ width: 18, height: 18 }} />
+              <span>Back to Projects</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Not found state
   if (!project) {
     return (
       <div style={{ minHeight: '100vh', paddingTop: 100, paddingBottom: 60 }}>
@@ -131,6 +143,9 @@ const ProjectDetails = () => {
   }
 
   const statusStyle = getStatusStyle(project.status);
+  const skills = Array.isArray(project.skills) ? project.skills : [];
+  const members = Array.isArray(project.members) ? project.members : [];
+  const openRoles = Array.isArray(project.openRoles) ? project.openRoles : [];
 
   return (
     <div style={{ minHeight: '100vh', paddingTop: 80, paddingBottom: 60 }}>
@@ -176,13 +191,15 @@ const ProjectDetails = () => {
                   }}>
                     {statusStyle.text}
                   </span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#71717a', fontSize: 13 }}>
-                    <FiCalendar style={{ width: 14, height: 14 }} />
-                    {project.createdAt}
-                  </span>
+                  {project.createdAt && (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#71717a', fontSize: 13 }}>
+                      <FiCalendar style={{ width: 14, height: 14 }} />
+                      {new Date(project.createdAt).toLocaleDateString()}
+                    </span>
+                  )}
                   <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#eab308', fontSize: 13 }}>
                     <FiStar style={{ width: 14, height: 14 }} />
-                    {project.stars}
+                    {project.stars || 0}
                   </span>
                 </div>
                 <h1 className="gradient-text" style={{ fontSize: 'clamp(24px, 4vw, 32px)', fontWeight: 700, marginBottom: 8 }}>
@@ -195,25 +212,27 @@ const ProjectDetails = () => {
             </div>
 
             {/* Skills */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {project.skills.map((skill, i) => (
-                <span key={i} style={{
-                  padding: '6px 14px',
-                  background: 'rgba(99, 102, 241, 0.1)',
-                  border: '1px solid rgba(99, 102, 241, 0.3)',
-                  borderRadius: 50,
-                  fontSize: 13,
-                  color: '#818cf8',
-                }}>{skill}</span>
-              ))}
-            </div>
+            {skills.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {skills.map((skill, i) => (
+                  <span key={i} style={{
+                    padding: '6px 14px',
+                    background: 'rgba(99, 102, 241, 0.1)',
+                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                    borderRadius: 50,
+                    fontSize: 13,
+                    color: '#818cf8',
+                  }}>{skill}</span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Content Grid */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
           gap: 24,
           marginBottom: 24,
         }}>
@@ -224,7 +243,7 @@ const ProjectDetails = () => {
               About This Project
             </h2>
             <div style={{ color: '#d1d5db', fontSize: 14, lineHeight: 1.8, whiteSpace: 'pre-line' }}>
-              {project.fullDescription}
+              {project.fullDescription || project.details || project.description}
             </div>
           </div>
 
@@ -232,10 +251,10 @@ const ProjectDetails = () => {
           <div className="glass-card" style={{ padding: 24 }}>
             <h2 style={{ color: 'white', fontSize: 18, fontWeight: 600, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
               <FiUsers style={{ color: '#10b981' }} />
-              Team Members ({project.members.length})
+              Team Members ({members.length})
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {project.members.map((member, i) => (
+              {members.length > 0 ? members.map((member, i) => (
                 <div key={i} style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -245,31 +264,37 @@ const ProjectDetails = () => {
                   borderRadius: 10,
                 }}>
                   <div className="avatar" style={{ width: 40, height: 40, fontSize: 14 }}>
-                    {member.avatar}
+                    {typeof member === 'object' ? (member.avatar || member.name?.slice(0, 2).toUpperCase()) : 'U'}
                   </div>
                   <div>
-                    <p style={{ color: 'white', fontWeight: 500 }}>{member.name}</p>
-                    <p style={{ color: '#818cf8', fontSize: 13 }}>{member.role}</p>
+                    <p style={{ color: 'white', fontWeight: 500 }}>
+                      {typeof member === 'object' ? member.name : `Member ${member}`}
+                    </p>
+                    <p style={{ color: '#818cf8', fontSize: 13 }}>
+                      {typeof member === 'object' ? (member.role || 'Developer') : 'Developer'}
+                    </p>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <p style={{ color: '#71717a', fontSize: 14 }}>No team members yet</p>
+              )}
             </div>
           </div>
         </div>
 
         {/* Open Positions */}
-        {project.openRoles.length > 0 && (
+        {openRoles.length > 0 && (
           <div className="glass-card" style={{ padding: 24 }}>
             <h2 style={{ color: 'white', fontSize: 18, fontWeight: 600, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
               <FiCheck style={{ color: '#f97316' }} />
-              Open Positions ({project.openRoles.length})
+              Open Positions ({openRoles.length})
             </h2>
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
               gap: 16,
             }}>
-              {project.openRoles.map((role, i) => (
+              {openRoles.map((role, i) => (
                 <div key={i} style={{
                   padding: 20,
                   background: 'rgba(255,255,255,0.02)',
@@ -279,11 +304,11 @@ const ProjectDetails = () => {
                   <h3 style={{ color: 'white', fontWeight: 500, marginBottom: 12 }}>{role}</h3>
                   <button
                     onClick={() => handleApply(role)}
-                    disabled={isApplying}
+                    disabled={applyingRole === role}
                     className="btn-primary"
                     style={{ width: '100%', padding: '12px 20px', fontSize: 14 }}
                   >
-                    {isApplying ? (
+                    {applyingRole === role ? (
                       <div className="typing-indicator">
                         <span></span>
                         <span></span>
