@@ -5,9 +5,11 @@ import { FaGithub } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../auth/AuthProvider';
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { register } = useAuth();
   
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -26,45 +28,11 @@ const Signup = () => {
   };
 
   const handleGoogleSignup = () => {
-    toast.info('Connecting to Google...', { position: 'top-center', autoClose: 1000 });
-    
-    setTimeout(() => {
-      localStorage.setItem('token', 'google_' + Date.now());
-      localStorage.setItem('user', JSON.stringify({
-        id: Date.now(),
-        name: 'Google User',
-        email: 'google@example.com',
-        avatar: 'GU',
-        provider: 'google'
-      }));
-
-      toast.success('Account created! 🎉', { position: 'top-center', autoClose: 1500 });
-
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 1500);
-    }, 1000);
+    toast.info('Google OAuth coming soon!', { position: 'top-center', autoClose: 2000 });
   };
 
   const handleGithubSignup = () => {
-    toast.info('Connecting to GitHub...', { position: 'top-center', autoClose: 1000 });
-    
-    setTimeout(() => {
-      localStorage.setItem('token', 'github_' + Date.now());
-      localStorage.setItem('user', JSON.stringify({
-        id: Date.now(),
-        name: 'GitHub Developer',
-        email: 'github@example.com',
-        avatar: 'GD',
-        provider: 'github'
-      }));
-
-      toast.success('Account created! 🎉', { position: 'top-center', autoClose: 1500 });
-
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 1500);
-    }, 1000);
+    toast.info('GitHub OAuth coming soon!', { position: 'top-center', autoClose: 2000 });
   };
 
   const validateStep1 = () => {
@@ -85,7 +53,7 @@ const Signup = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (formData.password.length < 6) {
@@ -99,24 +67,27 @@ const Signup = () => {
 
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      localStorage.setItem('token', 'demo_' + Date.now());
-      localStorage.setItem('user', JSON.stringify({
-        id: Date.now(),
+    try {
+      const result = await register({
         name: formData.name,
         email: formData.email,
-        avatar: formData.name.slice(0, 2).toUpperCase(),
-        skills: formData.skills.split(',').map(s => s.trim()).filter(s => s),
-      }));
+        password: formData.password,
+        skills: formData.skills,
+      });
 
-      toast.success('Account created! 🎉', { position: 'top-center', autoClose: 1500 });
-
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 1500);
-
+      if (result.success) {
+        toast.success('Account created! 🎉', { position: 'top-center', autoClose: 1500 });
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1500);
+      } else {
+        toast.error(result.error || 'Registration failed', { position: 'top-center' });
+      }
+    } catch (err) {
+      toast.error(err.message || 'Registration failed. Please try again.', { position: 'top-center' });
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   // Password strength

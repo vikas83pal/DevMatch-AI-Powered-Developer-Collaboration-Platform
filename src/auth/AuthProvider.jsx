@@ -20,13 +20,18 @@ export const AuthProvider = ({ children }) => {
           setToken(savedToken);
           setUser(JSON.parse(savedUser));
           
-          // Verify token is still valid
+          // Verify token is still valid by calling the backend
           const response = await authAPI.getCurrentUser();
-          setUser(response.data.user);
-          localStorage.setItem('user', JSON.stringify(response.data.user));
+          // api.js returns data directly (not wrapped in .data)
+          setUser(response.user);
+          localStorage.setItem('user', JSON.stringify(response.user));
         } catch (err) {
           console.error('Token validation failed:', err);
-          logout();
+          // Token is invalid/expired, clear everything
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setToken(null);
+          setUser(null);
         }
       }
       setLoading(false);
@@ -41,8 +46,9 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
       
+      // api.js returns data directly (not wrapped in .data)
       const response = await authAPI.login({ email, password });
-      const { token: newToken, user: userData } = response.data;
+      const { token: newToken, user: userData } = response;
 
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(userData));
@@ -52,7 +58,7 @@ export const AuthProvider = ({ children }) => {
       
       return { success: true, user: userData };
     } catch (err) {
-      const message = err.response?.data?.message || 'Login failed';
+      const message = err.message || 'Login failed';
       setError(message);
       return { success: false, error: message };
     } finally {
@@ -66,8 +72,9 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
       
+      // api.js returns data directly (not wrapped in .data)
       const response = await authAPI.register(userData);
-      const { token: newToken, user: newUser } = response.data;
+      const { token: newToken, user: newUser } = response;
 
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(newUser));
@@ -77,7 +84,7 @@ export const AuthProvider = ({ children }) => {
       
       return { success: true, user: newUser };
     } catch (err) {
-      const message = err.response?.data?.message || 'Registration failed';
+      const message = err.message || 'Registration failed';
       setError(message);
       return { success: false, error: message };
     } finally {
@@ -96,8 +103,6 @@ export const AuthProvider = ({ children }) => {
     } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      localStorage.removeItem('email');
-      localStorage.removeItem('password');
       setToken(null);
       setUser(null);
     }

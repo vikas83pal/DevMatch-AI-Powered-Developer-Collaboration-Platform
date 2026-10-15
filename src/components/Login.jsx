@@ -5,9 +5,11 @@ import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight, FiZap } from 'react-icon
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../auth/AuthProvider';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,49 +18,11 @@ const Login = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleGoogleLogin = () => {
-    toast.info('Connecting to Google...', { position: 'top-center', autoClose: 1000 });
-    
-    setTimeout(() => {
-      const mockUser = {
-        id: Date.now(),
-        name: 'Google User',
-        email: 'google@example.com',
-        avatar: 'GU',
-        provider: 'google'
-      };
-
-      localStorage.setItem('token', 'google_' + Date.now());
-      localStorage.setItem('user', JSON.stringify(mockUser));
-
-      toast.success('Successfully logged in! 🎉', { position: 'top-center', autoClose: 1500 });
-
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 1500);
-    }, 1000);
+    toast.info('Google OAuth coming soon!', { position: 'top-center', autoClose: 2000 });
   };
 
   const handleGithubLogin = () => {
-    toast.info('Connecting to GitHub...', { position: 'top-center', autoClose: 1000 });
-    
-    setTimeout(() => {
-      const mockUser = {
-        id: Date.now(),
-        name: 'GitHub Developer',
-        email: 'github@example.com',
-        avatar: 'GD',
-        provider: 'github'
-      };
-
-      localStorage.setItem('token', 'github_' + Date.now());
-      localStorage.setItem('user', JSON.stringify(mockUser));
-
-      toast.success('Successfully logged in! 🎉', { position: 'top-center', autoClose: 1500 });
-
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 1500);
-    }, 1000);
+    toast.info('GitHub OAuth coming soon!', { position: 'top-center', autoClose: 2000 });
   };
 
   const handleSubmit = async (e) => {
@@ -71,24 +35,22 @@ const Login = () => {
 
     setIsSubmitting(true);
 
-    // Simulate login
-    setTimeout(() => {
-      localStorage.setItem('token', 'demo_' + Date.now());
-      localStorage.setItem('user', JSON.stringify({
-        id: Date.now(),
-        name: email.split('@')[0],
-        email: email,
-        avatar: email.slice(0, 2).toUpperCase(),
-      }));
+    try {
+      const result = await login(email, password);
 
-      toast.success('Welcome back! 🎉', { position: 'top-center', autoClose: 1500 });
-
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 1500);
-
+      if (result.success) {
+        toast.success('Welcome back! 🎉', { position: 'top-center', autoClose: 1500 });
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1500);
+      } else {
+        toast.error(result.error || 'Login failed', { position: 'top-center' });
+      }
+    } catch (err) {
+      toast.error(err.message || 'Login failed. Please try again.', { position: 'top-center' });
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   return (

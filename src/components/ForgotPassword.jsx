@@ -3,22 +3,31 @@ import { Link } from 'react-router-dom';
 import { FiMail, FiArrowRight, FiArrowLeft, FiKey } from 'react-icons/fi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { authAPI } from '../services/api';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!email) {
+      toast.error('Please enter your email', { position: 'top-center' });
+      return;
+    }
+
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await authAPI.forgotPassword(email);
       toast.success('Password reset link sent!', { position: 'top-center' });
       setSubmitted(true);
+    } catch (err) {
+      toast.error(err.message || 'Failed to send reset link. Please try again.', { position: 'top-center' });
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
 
   return (

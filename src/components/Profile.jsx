@@ -20,8 +20,11 @@ import {
 } from 'react-icons/fi';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useAuth } from '../auth/AuthProvider';
+import { userAPI } from '../services/api';
 
 const Profile = () => {
+  const { updateProfile: authUpdateProfile } = useAuth();
   const [userData, setUserData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('about');
@@ -77,10 +80,27 @@ const Profile = () => {
     setTempData({ ...tempData, [name]: value });
   };
 
-  const handleSave = () => {
-    setProfileData(tempData);
-    setIsEditing(false);
-    toast.success('Profile updated!', { position: 'top-center' });
+  const handleSave = async () => {
+    try {
+      const res = await userAPI.updateProfile({
+        name: tempData.name,
+        bio: tempData.bio,
+        skills: tempData.skills,
+        role: tempData.role,
+      });
+      if (res.user) {
+        authUpdateProfile(res.user);
+      }
+      setProfileData(tempData);
+      setIsEditing(false);
+      toast.success('Profile updated!', { position: 'top-center' });
+    } catch (err) {
+      console.warn('Backend profile update note:', err);
+      // Even if network error occurs, keep local updates and notify user
+      setProfileData(tempData);
+      setIsEditing(false);
+      toast.success('Profile updated locally!', { position: 'top-center' });
+    }
   };
 
   const handleCancel = () => {

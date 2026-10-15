@@ -75,6 +75,24 @@ export const authAPI = {
     }),
 };
 
+// ============== USER API ==============
+export const userAPI = {
+    // Get user profile
+    getProfile: (id) => request(`/users/${id}`),
+
+    // Update user profile
+    updateProfile: (profileData) => request('/users/profile', {
+        method: 'PUT',
+        body: JSON.stringify(profileData),
+    }),
+
+    // Change password
+    changePassword: (passwordData) => request('/users/password', {
+        method: 'PUT',
+        body: JSON.stringify(passwordData),
+    }),
+};
+
 // ============== PROJECTS API ==============
 export const projectAPI = {
     // Get all projects

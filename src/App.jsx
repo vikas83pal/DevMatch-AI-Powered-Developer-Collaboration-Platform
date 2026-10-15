@@ -14,6 +14,8 @@ import ResetPassword from "./components/ResetPassword";
 import Contact from "./components/Contact";
 import Arena from "./components/Arena";
 import Profile from "./components/Profile";
+import Dashboard from "./components/Dashboard";
+import Analytics from "./components/Analytics";
 import ChatbotSupport from "./components/ChatbotSupport";
 import './App.css';
 
@@ -72,7 +74,7 @@ const PublicRoute = ({ children }) => {
   }
 
   if (isAuthenticated || hasToken) {
-    return <Navigate to="/profile" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
@@ -115,6 +117,22 @@ const AppContent = () => {
           <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           {/* Protected Routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/analytics"
+            element={
+              <ProtectedRoute>
+                <Analytics />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/profile"
             element={
